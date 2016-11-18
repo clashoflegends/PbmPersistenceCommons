@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,13 +24,12 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author gurgel
  */
-public class SysProperties implements Serializable {
+ final class SysProperties implements Serializable {
 
     private static final Log log = LogFactory.getLog(SysProperties.class);
-    private static Properties props;
-    private static SysProperties instance;
-    private static final String propArqName = "properties.config";
-    private static final String comentario = "Counselor config file\n"
+    private Properties props;
+    private final String propArqName = "properties.config";
+    private final String comentario = "Counselor config file\n"
             + "filtro.default=0|1 -> All|Own\n"
             + "SortAllCombos=0|1 -> Off|On\n"
             + "maximizeWindowOnStart = 0|1 -> normal|maximize\n"
@@ -63,8 +63,92 @@ public class SysProperties implements Serializable {
             + "drawPcPath=1\n"
             + "\n";
 
-    public static boolean isSet(String key) {
+    /**
+     * Creates a new instance of SysProperties
+     */
+    protected SysProperties() {
+        props = new Properties();
+        doConfigRestore();
+    }
+
+    private String getPropArq() {
+        return propArqName;
+    }
+
+    private Properties getProps() {
+        return props;
+    }
+
+    protected String getProps(String key) {
+        return getProps().getProperty(key);
+    }
+
+    protected String getProps(String key, String defaultValue) {
+        return getProps().getProperty(key, defaultValue);
+    }
+
+    protected void setProp(String key, String value) {
+        getProps().setProperty(key, value);
+    }
+
+    protected boolean isSet(String key) {
         return !getProps().getProperty(key, "SBRIFTS").equals("SBRIFTS");
+    }
+
+    /**
+     * para ler um arquivo de propriedades
+     *
+     */
+    private boolean doLoadFromFile() {
+        try {
+            props = doLoadPropertiesFile(getPropArq());
+            return true;
+        } catch (IOException e) {
+            //file not found, must create new with default values
+            return false;
+        }
+    }
+
+    protected Properties doLoadPropertiesFile(String fileName) throws IOException {
+        Properties properties = new Properties();
+        InputStream propIn = new FileInputStream(new File(fileName));
+        properties.load(propIn);
+        return properties;
+    }
+
+    /**
+     * if file not found, then create a new one
+     *
+     * @return
+     */
+    protected boolean doConfigRestore() {
+        if (!this.doLoadFromFile()) {
+            this.doCreateFile();
+        }
+        return true;
+    }
+
+    protected Enumeration<?> listKeys() {
+        return getProps().keys();
+    }
+
+    protected boolean doCreateFile() {
+        log.info("Creating new config file");
+        // create new file with default values
+        this.setPropDefault();
+        return doSavePropertiesToFile();
+    }
+
+    protected boolean doSavePropertiesToFile() {
+        log.info("Saving config file");
+        try {
+            OutputStream propFile = new FileOutputStream(new File(getPropArq()));
+            getProps().store(propFile, comentario);
+            return true;
+        } catch (IOException e) {
+            log.error("Error while creating new config file.");
+            return false;
+        }
     }
 
     private void setPropDefault() {
@@ -94,98 +178,5 @@ public class SysProperties implements Serializable {
         getProps().setProperty("SendOrderConfirmationPopUp", "1");
         getProps().setProperty("SendOrderReceiptRequest", "1");
         getProps().setProperty("LookAndFeelTheme", "0");
-    }
-
-    /**
-     * Creates a new instance of SysProperties
-     */
-    private SysProperties() {
-        props = new Properties();
-        if (!this.carrega()) {
-            this.novo(true);
-        }
-    }
-
-    public synchronized static SysProperties getInstance() {
-        if (SysProperties.instance == null) {
-            SysProperties.instance = new SysProperties();
-        }
-        return SysProperties.instance;
-    }
-
-    private static Properties getProps() {
-        if (props == null) {
-            SysProperties sysProperties = new SysProperties();
-        }
-        return props;
-    }
-
-    public static String getProps(String key) {
-        return getProps().getProperty(key);
-    }
-
-    public static String getProps(String key, String defaultValue) {
-        return getProps().getProperty(key, defaultValue);
-    }
-
-    /**
-     * para ler um arquivo de propriedades
-     *
-     */
-    private boolean carrega() {
-        boolean ret = false;
-        try {
-            InputStream propIn = new FileInputStream(
-                    new File(getPropArq()));
-            getProps().load(propIn);
-            ret = true;
-        } catch (IOException e) {
-            //Criar arquivo de configuracao, arquivo nao encontrado
-            ret = false;
-        }
-        return (ret);
-    }
-
-    private boolean novo(boolean novo) {
-        boolean ret = false;
-        //para gravar um arquivo de propriedades
-        try {
-            log.info("Criando arquivo de configuracao");
-            OutputStream propFile = new FileOutputStream(new File(getPropArq()));
-            if (novo) {
-                this.setPropDefault();
-            }
-            getProps().store(propFile, comentario);
-            ret = true;
-        } catch (IOException e) {
-            log.error("Erro criando arquivo de configuracao.");
-        }
-        return (ret);
-    }
-
-    private String getPropArq() {
-        return propArqName;
-    }
-
-    public void setProp(String key, String value) {
-        log.info("Salvando arquivo de configuracao");
-        getProps().setProperty(key, value);
-        try {
-            OutputStream propFile = new FileOutputStream(new File(getPropArq()));
-            getProps().store(propFile, comentario);
-        } catch (IOException ex) {
-            throw new UnsupportedOperationException(ex);
-        }
-    }
-
-    public Properties loadPropertiesFile(String fileName) {
-        Properties properties = new Properties();
-        try {
-            InputStream propIn = new FileInputStream(new File(fileName));
-            properties.load(propIn);
-        } catch (IOException e) {
-            //Arquivo nao encontrado
-        }
-        return properties;
     }
 }

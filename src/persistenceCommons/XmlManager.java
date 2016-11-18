@@ -106,7 +106,7 @@ public class XmlManager implements Serializable {
             //cria temp file para o XML
             File tempFile;
             //verifica se o properties esta definindo que os arquivos temporarios devem ser apagados ou nao(debug?)
-            if (SysProperties.getProps("tempZipFiles", "1").equals("1")) {
+            if (SettingsManager.getInstance().getConfig("tempZipFiles", "1").equals("1")) {
                 String tempFileName = finalFile.getName();
                 if (getExtension(tempFileName).equalsIgnoreCase("egf")) {
                     tempFileName = getFileName(tempFileName);

@@ -164,7 +164,7 @@ public class SmtpManager implements Serializable {
     }
 
     public boolean sendMsg() throws PersistenceException {
-        if (SysProperties.getProps("local").equalsIgnoreCase("Desenv")) {
+        if (SettingsManager.getInstance().getConfig("local").equalsIgnoreCase("Desenv")) {
             return false;
         }
 
@@ -441,10 +441,10 @@ public class SmtpManager implements Serializable {
     }
 
     private void doLoadSmtpProperties() {
-        if (SysProperties.isSet("mail.smtp.server")) {
-            setHostSmtp(SysProperties.getProps("mail.smtp.server"));
-            setLoginNameSmtp(SysProperties.getProps("mail.smtp.user"));
-            setPwdSmtp(SysProperties.getProps("mail.smtp.passwd"));
+        if (!SettingsManager.getInstance().isConfig("mail.smtp.server")) {
+            setHostSmtp(SettingsManager.getInstance().getConfig("mail.smtp.server"));
+            setLoginNameSmtp(SettingsManager.getInstance().getConfig("mail.smtp.user"));
+            setPwdSmtp(SettingsManager.getInstance().getConfig("mail.smtp.passwd"));
         }
     }
 

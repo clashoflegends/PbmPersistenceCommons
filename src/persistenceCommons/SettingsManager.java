@@ -4,11 +4,11 @@
  */
 package persistenceCommons;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,10 +29,10 @@ public final class SettingsManager implements Serializable {
     private boolean tableColumnAdjust = true;
     private boolean radialMenu = false;
     private Properties newGameProp;
-    private final SortedMap<String, String> properties;
+    private final SysProperties propertiesConfig;
 
     private SettingsManager() {
-        this.properties = new TreeMap<String, String>();
+        this.propertiesConfig = new SysProperties();
     }
 
     public synchronized static SettingsManager getInstance() {
@@ -64,9 +64,9 @@ public final class SettingsManager implements Serializable {
 
     public String getSaveDir() {
         if (SettingsManager.instance.debug) {
-            return SysProperties.getProps("saveDirDebug");
+            return SettingsManager.getInstance().getConfig("saveDirDebug");
         } else {
-            return SysProperties.getProps("saveDir");
+            return SettingsManager.getInstance().getConfig("saveDir");
         }
     }
 
@@ -148,31 +148,60 @@ public final class SettingsManager implements Serializable {
 
     public Properties getNewGameProperties() {
         if (newGameProp == null) {
-            newGameProp = SysProperties.getInstance().loadPropertiesFile("nations.config");
+            try {
+                newGameProp = propertiesConfig.doLoadPropertiesFile("nations.config");
+            } catch (IOException ex) {
+                throw new UnsupportedOperationException("expecting a new game file = nations.config", ex);
+            }
         }
         return newGameProp;
     }
 
-    public String getProperties(String key, String defaultValue) {
-        if (properties.containsKey(key)) {
-            return properties.get(key);
-        } else {
-            return SysProperties.getProps(key, defaultValue);
-        }
+    /*
+     SysProperties encapsulation begins
+     - SortedMap<String, String> listProp();
+     - String GetProp(key) returns current value;
+     - boolean SetProp(key,value) returns true if value is accepted;
+     - boolean restoreProp() reloads from file;
+     - boolean saveProps() saves to file;
+     */
+    public String getConfig(String key) {
+        return propertiesConfig.getProps(key);
     }
 
-    public String getProperties(String key) {
-        if (properties.containsKey(key)) {
-            return properties.get(key);
-        } else {
-            return SysProperties.getProps(key);
-        }
+    public String getConfig(String key, String defaultValue) {
+        return propertiesConfig.getProps(key, defaultValue);
     }
 
-    public boolean isProperties(String key, String comparisonValue, String defaultValue) {
-        return getProperties(key, defaultValue).equalsIgnoreCase(comparisonValue);
+    public void setConfig(String key, String value) {
+        propertiesConfig.setProp(key, value);
     }
-    public boolean isProperties(String key) {
-        return getProperties(key, "-").equalsIgnoreCase("-");
+
+    public void setConfigAndSaveToFile(String key, String value) {
+        setConfig(key, value);
+        propertiesConfig.doSavePropertiesToFile();
     }
+
+    public boolean isConfig(String key, String comparisonValue, String defaultValue) {
+        return getConfig(key, defaultValue).equalsIgnoreCase(comparisonValue);
+    }
+
+    public boolean isConfig(String key) {
+        return propertiesConfig.isSet(key);
+    }
+
+    public boolean doConfigRestore(String key) {
+        return propertiesConfig.doConfigRestore();
+    }
+
+    public boolean doConfigSave(String key) {
+        return propertiesConfig.doSavePropertiesToFile();
+    }
+
+    public Enumeration<?> listConfigs() {
+        return propertiesConfig.listKeys();
+    }
+    /*
+     SysProperties encapsulation ends
+     */
 }

@@ -70,15 +70,15 @@ public class WebCounselorManager {
             entity.addPart("pCounselorVersion", new StringBody(SysApoio.getVersionClash("version_counselor")));
             entity.addPart("pCommonsVersion", new StringBody(SysApoio.getVersionClash("version_commons")));
             entity.addPart("pScreenSize", new StringBody(SysApoio.getScreenSize()));
-            entity.addPart("pMapTiles", new StringBody(SysProperties.getProps("MapTiles", "2b")));
-            if (SysProperties.getProps("SendOrderReceiptRequest", "1").equals("1")) {
+            entity.addPart("pMapTiles", new StringBody(SettingsManager.getInstance().getConfig("MapTiles", "2b")));
+            if (SettingsManager.getInstance().getConfig("SendOrderReceiptRequest", "1").equals("1")) {
                 entity.addPart("pTextBody", new StringBody(info.getOrders()));
                 entity.addPart("pPartidaName", new StringBody(info.getGameNm()));
                 entity.addPart("pJogadorEmail", new StringBody(info.getPlayerEmail()));
             }
 
             // aqui define a URL
-            final String uploadPage = SysProperties.getProps("UploadPage", "CounselorUploadTurn");
+            final String uploadPage = SettingsManager.getInstance().getConfig("UploadPage", "CounselorUploadTurn");
             HttpPost post = new HttpPost(getUrl(uploadPage));
             post.setEntity(entity);
 
