@@ -30,7 +30,7 @@ public class BundleManager implements Serializable {
             return ResourceBundle.getBundle("mensagens").getString(label);
         } catch (MissingResourceException ex) {
         }
-        //YYY: to de/activate the fatal stop when a string is not found
+        //YYY: to deactivate the fatal stop when a string is not found
 //                throw new UnsupportedOperationException("Missing string: " + label);
         log.fatal("Missing string: " + label);
         return "N/A (Missing Translation)";
