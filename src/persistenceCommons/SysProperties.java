@@ -140,7 +140,7 @@ import org.apache.commons.logging.LogFactory;
     }
 
     protected boolean doSavePropertiesToFile() {
-        log.info("Saving config file");
+        log.debug("Saving properties configs to file");
         try {
             OutputStream propFile = new FileOutputStream(new File(getPropArq()));
             getProps().store(propFile, comentario);
