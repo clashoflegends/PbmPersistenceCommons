@@ -182,11 +182,25 @@ public final class SettingsManager implements Serializable {
         propertiesConfig.doSavePropertiesToFile();
     }
 
+    /**
+     * Checks if the value stored in the key matches comparisonValue.
+     * If the key does not exists, then it compares defaultValue to comparisonValue instead.
+     * All comparisons are case insensitive
+     * @param key
+     * @param comparisonValue
+     * @param defaultValue
+     * @return 
+     */
     public boolean isConfig(String key, String comparisonValue, String defaultValue) {
         return getConfig(key, defaultValue).equalsIgnoreCase(comparisonValue);
     }
 
-    public boolean isConfig(String key) {
+    /**
+     * Checks if the key exists in the properties.
+     * @param key
+     * @return 
+     */
+    public boolean isKeyExist(String key) {
         return propertiesConfig.isSet(key);
     }
 

@@ -441,7 +441,7 @@ public class SmtpManager implements Serializable {
     }
 
     private void doLoadSmtpProperties() {
-        if (!SettingsManager.getInstance().isConfig("mail.smtp.server")) {
+        if (!SettingsManager.getInstance().isKeyExist("mail.smtp.server")) {
             setHostSmtp(SettingsManager.getInstance().getConfig("mail.smtp.server"));
             setLoginNameSmtp(SettingsManager.getInstance().getConfig("mail.smtp.user"));
             setPwdSmtp(SettingsManager.getInstance().getConfig("mail.smtp.passwd"));
