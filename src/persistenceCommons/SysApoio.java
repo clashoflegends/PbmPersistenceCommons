@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -108,8 +109,7 @@ public class SysApoio implements Serializable {
     }
 
     /**
-     * rolagem de dados ate o valor val nunca rola o zero val eh o maior valor
-     * possivel
+     * rolagem de dados ate o valor val nunca rola o zero val eh o maior valor possivel
      */
     public static int rand(int val) {
         return (int) (Math.random() * val) + 1;
@@ -204,8 +204,7 @@ public class SysApoio implements Serializable {
     }
 
     /**
-     * completa a string com o char A ESQUERDA ate o comprimento desejado ideal
-     * para zerofill ex: lpad(String numeroOriginal, '0', 2)
+     * completa a string com o char A ESQUERDA ate o comprimento desejado ideal para zerofill ex: lpad(String numeroOriginal, '0', 2)
      */
     public static String lpad(String original, char adicionar, int size) {
         String ret = "";
@@ -217,8 +216,7 @@ public class SysApoio implements Serializable {
     }
 
     /**
-     * completa a string com o char A ESQUERDA ate o comprimento desejado ideal
-     * para zerofill ex: lpad(String numeroOriginal, '0', 2)
+     * completa a string com o char A ESQUERDA ate o comprimento desejado ideal para zerofill ex: lpad(String numeroOriginal, '0', 2)
      */
     public static String lpad(int original, char adicionar, int size) {
         String ret = "";
@@ -520,15 +518,12 @@ public class SysApoio implements Serializable {
      * Finds the index of the given object in the array.</p>
      *
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} ( <code>-1</code>) for a
-     * <code>null</code> input array.</p>
+     * This method returns {@link #INDEX_NOT_FOUND} ( <code>-1</code>) for a <code>null</code> input array.</p>
      *
-     * @param array the array to search through for the object, may * * * * * *
-     * be <code>null</code>
+     * @param array the array to search through for the object, may * * * * * * be <code>null</code>
      * @param objectToFind the object to find, may be <code>null</code>
-     * @return the index of the object within the array,
-     * {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found * * * * * * * *
-     * or <code>null</code> array input
+     * @return the index of the object within the array, {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found * * * * * * * * or <code>null</code>
+     * array input
      */
     public static int indexOf(Object[] array, Object objectToFind) {
         return indexOf(array, objectToFind, 0);
@@ -536,23 +531,19 @@ public class SysApoio implements Serializable {
 
     /**
      * <p>
-     * Finds the index of the given object in the array starting at the given
-     * index.</p>
+     * Finds the index of the given object in the array starting at the given index.</p>
      *
      * <p>
-     * This method returns {@link #INDEX_NOT_FOUND} ( <code>-1</code>) for a
-     * <code>null</code> input array.</p>
+     * This method returns {@link #INDEX_NOT_FOUND} ( <code>-1</code>) for a <code>null</code> input array.</p>
      *
      * <p>
-     * A negative startIndex is treated as zero. A startIndex larger than the
-     * array length will return {@link #INDEX_NOT_FOUND} ( <code>-1</code>).</p>
+     * A negative startIndex is treated as zero. A startIndex larger than the array length will return {@link #INDEX_NOT_FOUND} (
+     * <code>-1</code>).</p>
      *
-     * @param array the array to search through for the object, may * * * * * *
-     * be <code>null</code>
+     * @param array the array to search through for the object, may * * * * * * be <code>null</code>
      * @param objectToFind the object to find, may be <code>null</code>
      * @param startIndex the index to start searching at
-     * @return the index of the object within the array starting at the index,
-     * {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found * * * * * * * *
+     * @return the index of the object within the array starting at the index, {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found * * * * * * * *
      * or <code>null</code> array input
      */
     public static int indexOf(Object[] array, Object objectToFind, int startIndex) {
@@ -593,8 +584,7 @@ public class SysApoio implements Serializable {
 //        return msg;
 //    }
     /**
-     * version.properties deve estar no default package. PbmCommons nao pode ter
-     * um version.properties para evitar conflitos.
+     * version.properties deve estar no default package. PbmCommons nao pode ter um version.properties para evitar conflitos.
      *
      * @return
      */
@@ -789,5 +779,9 @@ public class SysApoio implements Serializable {
         } catch (AWTException ex) {
             log.error(ex);
         }
+    }
+
+    public static String format(String base, Object[] placeholders) {
+        return MessageFormat.format(base.replaceAll("'", "''"), placeholders);
     }
 }
