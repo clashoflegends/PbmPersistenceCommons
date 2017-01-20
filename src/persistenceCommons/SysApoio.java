@@ -21,7 +21,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -779,9 +778,5 @@ public class SysApoio implements Serializable {
         } catch (AWTException ex) {
             log.error(ex);
         }
-    }
-
-    public static String format(String base, Object[] placeholders) {
-        return MessageFormat.format(base.replaceAll("'", "''"), placeholders);
     }
 }

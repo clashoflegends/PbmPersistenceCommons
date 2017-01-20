@@ -71,11 +71,11 @@ public final class SettingsManager implements Serializable {
     }
 
     public BundleManager getBundleManager() {
-        //para forcar o portugues, por hora.
+        //para forcar o ingles, por hora.
         if (SettingsManager.getInstance().locale == null) {
             SettingsManager.getInstance().locale = new Locale("en");
             Locale.setDefault(locale);
-            //log.fatal("Definindo local default as PT");
+            //log.fatal("Definindo local default as EN");
         }
         //log.fatal(SettingsManager.getInstance().locale);
         if (SettingsManager.getInstance().bundleManager == null) {
