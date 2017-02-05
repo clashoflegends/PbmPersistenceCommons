@@ -70,6 +70,10 @@ public final class SettingsManager implements Serializable {
         }
     }
 
+    public String getSaveStatsDir() {
+        return SettingsManager.getInstance().getConfig("saveStatsDir");
+    }
+
     public BundleManager getBundleManager() {
         //para forcar o ingles, por hora.
         if (SettingsManager.getInstance().locale == null) {
@@ -183,13 +187,13 @@ public final class SettingsManager implements Serializable {
     }
 
     /**
-     * Checks if the value stored in the key matches comparisonValue.
-     * If the key does not exists, then it compares defaultValue to comparisonValue instead.
-     * All comparisons are case insensitive
+     * Checks if the value stored in the key matches comparisonValue. If the key does not exists, then it compares defaultValue to comparisonValue
+     * instead. All comparisons are case insensitive
+     *
      * @param key
      * @param comparisonValue
      * @param defaultValue
-     * @return 
+     * @return
      */
     public boolean isConfig(String key, String comparisonValue, String defaultValue) {
         return getConfig(key, defaultValue).equalsIgnoreCase(comparisonValue);
@@ -197,8 +201,9 @@ public final class SettingsManager implements Serializable {
 
     /**
      * Checks if the key exists in the properties.
+     *
      * @param key
-     * @return 
+     * @return
      */
     public boolean isKeyExist(String key) {
         return propertiesConfig.isSet(key);
