@@ -703,6 +703,13 @@ public class SysApoio implements Serializable {
                         log.fatal("Labels: " + labels.getString(elemLabel));
                         log.fatal(e);
                         throw new UnsupportedOperationException(e);
+                    } catch (java.util.UnknownFormatConversionException e) {
+                        log.fatal("linha: " + linha);
+                        log.fatal("temp: " + Arrays.toString(temp));
+                        log.fatal("elemLabel: " + elemLabel);
+                        log.fatal("Labels: " + labels.getString(elemLabel));
+                        log.fatal(e);
+                        throw new UnsupportedOperationException(e);
                     }
                     //parametros podem ser labels, entao decodifica de novo a linha
 
