@@ -359,6 +359,10 @@ public class SysApoio implements Serializable {
         return temp.replaceAll("[^\\p{ASCII}]", "");
     }
 
+    public static String toTabLinereakFromLinebreak(String s) {
+        return s.replaceAll("\n", "\n\t");
+    }
+
     public static String toPrimeiraMaiuscula(String s) {
         String ret = "";
         String palavra[] = s.split(" ");
@@ -665,7 +669,7 @@ public class SysApoio implements Serializable {
         return ret;
     }
 
-    public static String doParseString(String input, BundleManager labels) {
+    public static String stringParse(String input, BundleManager labels) {
         String ret = "";
         try {
             String elemLabel, elemSubs;
