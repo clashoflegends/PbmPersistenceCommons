@@ -363,6 +363,10 @@ public class SysApoio implements Serializable {
         return s.replaceAll("\n", "\n\t");
     }
 
+    public static String toLinereakSpaceFromLinebreakTab(String s) {
+        return s.replaceAll("\n\t", "\n          ");
+    }
+
     public static String toPrimeiraMaiuscula(String s) {
         String ret = "";
         String palavra[] = s.split(" ");
