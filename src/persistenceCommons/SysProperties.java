@@ -41,7 +41,7 @@ import org.apache.commons.logging.LogFactory;
             //            + "doneDir = server side use, no effect on the Counselor\n"
             //            + "local = server side use, no effect on the Counselor\n"
             //            + "database = server side use, no effect on the Counselor\n"
-            + "language = en/pt/it, to define the GUI language\n"
+            + "language = en/pt/it, to define the GUI language.\n"
             + "splitSize = 300, define the size of the left side screen split.\n"
             + "TableColumnAdjust = 0|1 -> Yes|No, adjust columns during \"Load Action\" of changing filters.\n"
             + "TableActionColumnAdjust = 0|1 -> Yes|No, adjust Action columns during \"Load Action\" or changing filters.\n"
@@ -60,8 +60,10 @@ import org.apache.commons.logging.LogFactory;
             + "mail.smtp.server=smtp.myserver.com, smtp server name to be used.\n"
             + "mail.smpt.port=25, smtp port to be used. Only port 25 is supported right now.\n"
             + "mail.smtp.user=myuser, username for smtp authentication.\n"
-            + "mail.smtp.passwd=my password, password for smtp authentication\n"
+            + "mail.smtp.passwd=my password, password for smtp authentication.\n"
             + "drawPcPath=1\n"
+            + "LoadActionsBehavior=clean | append -> clear all orders before loading new orders file or just append to existing.\n"
+            + "LoadActionsOtherNations=deny | allow -> allows or forbids loading actions from other nations files.\n"
             + "\n";
 
     /**
