@@ -114,6 +114,10 @@ public class SysApoio implements Serializable {
         return (int) (Math.random() * val) + 1;
     }
 
+    public static int rand() {
+        return (int) (Math.random() * 100) + 1;
+    }
+
     public static float randFloat(float val) {
         return (float) ((Math.random() * val) + 1F);
     }
