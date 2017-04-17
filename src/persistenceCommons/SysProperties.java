@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author gurgel
  */
- final class SysProperties implements Serializable {
+final class SysProperties implements Serializable {
 
     private static final Log log = LogFactory.getLog(SysProperties.class);
     private Properties props;
@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
     private final String comentario = "Counselor config file\n"
             + "filtro.default=0|1 -> All|Own\n"
             + "SortAllCombos=0|1 -> Off|On\n"
+            + "FogOfWarType=0|1 -> Off|On\n"
             + "maximizeWindowOnStart = 0|1 -> normal|maximize\n"
             + "minimizeMapOnStart = 0|1 -> view|hide\n"
             + "saveDir =/folder/folder/, default folder to save orders (use / as opposed to \\).\n"
