@@ -65,6 +65,10 @@ final class SysProperties implements Serializable {
             + "drawPcPath=1\n"
             + "LoadActionsBehavior=clean | append -> clear all orders before loading new orders file or just append to existing.\n"
             + "LoadActionsOtherNations=deny | allow -> allows or forbids loading actions from other nations files.\n"
+            + "LookAndFeelTheme=0 | Metal | Nimbus -> forces Counselor to a specific theme, these two look better on high resolution screens."
+            + "LookAndFeelFontSize= 0-72 -> select the system default font size.\n"
+            + "ActionListHeight=300 -> defines the size for the action list window under the character's tab, to look better on high resolution screens."
+            + "TableRowAdjust=1"
             + "\n";
 
     /**
