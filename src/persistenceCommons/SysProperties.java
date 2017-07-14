@@ -67,8 +67,9 @@ final class SysProperties implements Serializable {
             + "LoadActionsOtherNations=deny | allow -> allows or forbids loading actions from other nations files.\n"
             + "LookAndFeelTheme=0 | Metal | Nimbus -> forces Counselor to a specific theme, these two look better on high resolution screens."
             + "LookAndFeelFontSize= 0-72 -> select the system default font size.\n"
-            + "ActionListHeight=300 -> defines the size for the action list window under the character's tab, to look better on high resolution screens."
-            + "TableRowAdjust=1"
+            + "TableRowAdjust = 0|1 -> Yes|No, adjust row heights to the content size, important if using larger fonts.\n"
+            + "ActionListHeight = 107-999 -> defines the size for the action list window under the character's tab, to look better on high resolution screens."
+            + "MoveTagTransparency = 0-10 | defines how trasnparent the distance disks are when ploted on map. 0 means no trasnparency, 10 means fully transparent."
             + "\n";
 
     /**
@@ -186,5 +187,9 @@ final class SysProperties implements Serializable {
         getProps().setProperty("SendOrderConfirmationPopUp", "1");
         getProps().setProperty("SendOrderReceiptRequest", "1");
         getProps().setProperty("LookAndFeelTheme", "0");
+        getProps().setProperty("MoveTagTransparency", "2");
+        getProps().setProperty("ActionListHeight", "107");
+        getProps().setProperty("TableRowAdjust", "1");
+        getProps().setProperty("TableActionColumnAdjust", "1");
     }
 }
