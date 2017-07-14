@@ -190,6 +190,6 @@ final class SysProperties implements Serializable {
         getProps().setProperty("MoveTagTransparency", "2");
         getProps().setProperty("ActionListHeight", "107");
         getProps().setProperty("TableRowAdjust", "1");
-        getProps().setProperty("TableActionColumnAdjust", "1");
+        getProps().setProperty("TableActionColumnAdjust", "0");
     }
 }
