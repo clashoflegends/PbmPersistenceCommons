@@ -191,5 +191,7 @@ final class SysProperties implements Serializable {
         getProps().setProperty("ActionListHeight", "107");
         getProps().setProperty("TableRowAdjust", "1");
         getProps().setProperty("TableActionColumnAdjust", "0");
+        getProps().setProperty("LoadActionsOtherNations", "allow");
+        getProps().setProperty("LoadActionsBehavior", "append");
     }
 }
