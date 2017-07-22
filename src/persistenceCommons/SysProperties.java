@@ -165,13 +165,8 @@ final class SysProperties implements Serializable {
         getProps().setProperty("TableColumnAdjust", "0");
         getProps().setProperty("maximizeWindowOnStart", "1");
         getProps().setProperty("minimizeMapOnStart", "0");
-        getProps().setProperty("saveDir", "/tmpbm/xml/");
-        getProps().setProperty("loadDir", "/tmpbm/saves/");
-        //getProps().setProperty("autoLoad", "partida_62_3.lucio.rr.egf");
-//        getProps().setProperty("doneDir", "/tmpbm/xml/Done/");
-//        getProps().setProperty("local", "Unknow"); //Desenv?
-//        getProps().setProperty("database", "ProdTeste");
-//        getProps().setProperty("tempZipFiles", "1");
+        getProps().setProperty("saveDir", "/clash/");
+        getProps().setProperty("loadDir", "/clash/");
         getProps().setProperty("language", "en");
         getProps().setProperty("splitSize", "660");
         getProps().setProperty("CopyActionsPopUp", "1");
