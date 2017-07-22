@@ -172,7 +172,7 @@ final class SysProperties implements Serializable {
         getProps().setProperty("CopyActionsPopUp", "1");
         getProps().setProperty("CopyActionsOrder", "1");
         getProps().setProperty("MyEmail", "none");
-        getProps().setProperty("KeepPopupOpen", "0");
+        getProps().setProperty("KeepPopupOpen", "1");
         getProps().setProperty("HexTagStyle", "0");
         getProps().setProperty("HexTagFrame", "0");
         getProps().setProperty("ShowArmyMovPath", "1");
