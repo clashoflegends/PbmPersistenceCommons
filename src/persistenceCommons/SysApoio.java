@@ -10,6 +10,7 @@ package persistenceCommons;
 
 import com.ibm.icu.text.Normalizer;
 import java.awt.AWTException;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -61,8 +62,8 @@ public class SysApoio implements Serializable {
      *
      * @return dialog to show a message
      */
-    public static void showDialogError(String message) {
-        showDialogError(message, "Error!");
+    public static void showDialogError(String message, Component relativeTo) {
+        showDialogError(message, "Error!", relativeTo);
     }
 
     /**
@@ -70,9 +71,9 @@ public class SysApoio implements Serializable {
      *
      * @return dialog to show a message
      */
-    public static void showDialogError(String message, String title) {
+    public static void showDialogError(String message, String title, Component relativeTo) {
         JOptionPane optionPane = new JOptionPane(message, JOptionPane.ERROR_MESSAGE);
-        JDialog dialog = optionPane.createDialog(null, title);
+        JDialog dialog = optionPane.createDialog(relativeTo, title);
         dialog.setAlwaysOnTop(true);
         dialog.toFront();
         dialog.setVisible(true);
@@ -83,17 +84,17 @@ public class SysApoio implements Serializable {
      *
      * @return dialog to show a message
      */
-    public static void showDialogAlert(String message) {
+    public static void showDialogAlert(String message, Component relativeTo) {
         JOptionPane optionPane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
-        JDialog dialog = optionPane.createDialog(null, "Watch out!");
+        JDialog dialog = optionPane.createDialog(relativeTo, "Watch out!");
         dialog.setAlwaysOnTop(true);
         dialog.toFront();
         dialog.setVisible(true);
     }
 
-    public static void showDialogInfo(String message, String title) {
+    public static void showDialogInfo(String message, String title, Component relativeTo) {
         JOptionPane optionPane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
-        JDialog dialog = optionPane.createDialog(null, title);
+        JDialog dialog = optionPane.createDialog(relativeTo, title);
         dialog.setAlwaysOnTop(true);
         dialog.toFront();
         dialog.setVisible(true);
