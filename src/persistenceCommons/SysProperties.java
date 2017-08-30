@@ -39,6 +39,8 @@ final class SysProperties implements Serializable {
             + "loadDir =/folder/folder/, default folder to load results and orders (use / as opposed to \\).\n"
             + "autoLoad =/folders/file file name that you want for the Results to be loaded every time (use / as opposed to \\).\n"
             + "autoLoadActions =/folders/file file name for the Action that you want to be loaded every time (use / as opposed to \\).\n"
+            + "AutoSaveActions = 0|1 -> Do not auto save | Always save.\n"
+            + "ActionsMissingPopup = 0|1 -> Missing action messages in the status bar only | Always show a popup indicating there are missing actions.\n"
             //            + "doneDir = server side use, no effect on the Counselor\n"
             //            + "local = server side use, no effect on the Counselor\n"
             //            + "database = server side use, no effect on the Counselor\n"
@@ -179,6 +181,8 @@ final class SysProperties implements Serializable {
         getProps().setProperty("MapTiles", "2b");
         getProps().setProperty("KeepPopupOpen", "0");
         getProps().setProperty("AutoMoveNextAction", "1");
+        getProps().setProperty("AutoSaveActions", "0");
+        getProps().setProperty("ActionsMissingPopup", "1");
         getProps().setProperty("SendOrderConfirmationPopUp", "1");
         getProps().setProperty("SendOrderReceiptRequest", "1");
         getProps().setProperty("LookAndFeelTheme", "0");
