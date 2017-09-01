@@ -135,7 +135,7 @@ public class XmlManager implements Serializable {
             fw.write(xml);
             fw.close();
             ZipManager.getInstance().doCompressGzip(tempFile, finalFile);
-            log.info("Saved file:" + finalFile.getAbsolutePath());
+            log.debug("Saved file:" + finalFile.getAbsolutePath());
         } catch (IOException ex) {
             log.error("Issues with file...", ex);
             throw new PersistenceException(ex);
