@@ -51,6 +51,10 @@ public final class SettingsManager implements Serializable {
         SettingsManager.instance.configurationMode = modoAcesso;
     }
 
+    public boolean isAutoSaveActions() {
+        return isConfig("AutoSaveActions", "1", "0");
+    }
+
     public boolean isDebug() {
         return SettingsManager.instance.debug;
     }
@@ -173,6 +177,7 @@ public final class SettingsManager implements Serializable {
     public String getConfig(String key) {
         return propertiesConfig.getProps(key);
     }
+
     public int getConfigAsInt(String key) {
         return SysApoio.parseInt(propertiesConfig.getProps(key));
     }
@@ -224,6 +229,7 @@ public final class SettingsManager implements Serializable {
     public Enumeration<?> listConfigs() {
         return propertiesConfig.listKeys();
     }
+
     /*
      SysProperties encapsulation ends
      */
