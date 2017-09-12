@@ -764,7 +764,7 @@ public class SysApoio implements Serializable {
         if (ret.contains("%s")) {
             log.fatal("Input: " + input);
             log.fatal("Output: " + ret);
-            throw new UnsupportedOperationException("Saindo, faltou substituir um %s.");
+            throw new UnsupportedOperationException("Saindo, faltou substituir um %s.\n Output: " + ret);
         }
         return ret;
     }
