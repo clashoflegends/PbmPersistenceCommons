@@ -29,16 +29,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * sendfile will create a multipart message with the second block of the message
- * being the given file.<p>
+ * sendfile will create a multipart message with the second block of the message being the given file.<p>
  *
  * This demonstrates how to use the FileDataSource to send a file via mail.<p>
  *
  * usage: <code>java sendfile <i>to from smtp file true|false</i></code> where
- * <i>to</i> and <i>from</i> are the destination and origin email addresses,
- * respectively, and <i>smtp</i> is the hostname of the machine that has smtp
- * server running. <i>file</i> is the file to send. The next parameter either
- * turns on or turns off debugging during sending.
+ * <i>to</i> and <i>from</i> are the destination and origin email addresses, respectively, and <i>smtp</i> is the hostname of the machine that has
+ * smtp server running. <i>file</i> is the file to send. The next parameter either turns on or turns off debugging during sending.
  *
  * @author	Christopher Cotton
  */
@@ -153,7 +150,7 @@ public class SmtpManager implements Serializable {
             throw new PersistenceException(ex.getMessage());
         } catch (MessagingException mex) {
             //log.fatal(mex);
-            Exception ex = null;
+            Exception ex;
             if ((ex = mex.getNextException()) != null) {
                 throw new PersistenceException(ex.getMessage());
             }
@@ -179,7 +176,7 @@ public class SmtpManager implements Serializable {
             ret = true;
 
         } catch (SendFailedException ex) {
-            Exception mex = null;
+            Exception mex;
             if ((mex = ex.getNextException()) != null) {
                 throw new PersistenceException(mex.getMessage());
             } else {
@@ -187,7 +184,7 @@ public class SmtpManager implements Serializable {
             }
         } catch (MessagingException mex) {
             //log.fatal(mex);
-            Exception ex = null;
+            Exception ex;
             if ((ex = mex.getNextException()) != null) {
                 throw new PersistenceException(ex.getMessage());
             } else {
@@ -208,7 +205,7 @@ public class SmtpManager implements Serializable {
             //transport not initialized, just ignore.
         } catch (MessagingException mex) {
             //log.fatal(mex);
-            Exception ex = null;
+            Exception ex;
             if ((ex = mex.getNextException()) != null) {
                 throw new PersistenceException(ex.getMessage());
             }
@@ -279,13 +276,13 @@ public class SmtpManager implements Serializable {
                 ret = true;
 
             } catch (SendFailedException ex) {
-                Exception mex = null;
+                Exception mex;
                 if ((mex = ex.getNextException()) != null) {
                     throw new PersistenceException(mex.getMessage());
                 } else {
                     throw new PersistenceException(ex.getMessage());
                 }
-            } catch (Exception ex) {
+            } catch (MessagingException ex) {
                 log.info(ex);
             } finally {
                 transport.close();
@@ -296,7 +293,7 @@ public class SmtpManager implements Serializable {
             throw new PersistenceException(ex.getMessage());
         } catch (MessagingException mex) {
             //log.fatal(mex);
-            Exception ex = null;
+            Exception ex;
             if ((ex = mex.getNextException()) != null) {
                 throw new PersistenceException(ex.getMessage());
             }
