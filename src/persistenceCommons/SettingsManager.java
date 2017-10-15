@@ -157,6 +157,7 @@ public final class SettingsManager implements Serializable {
 
     public Properties getNewGameProperties() {
         if (newGameProp == null) {
+            //of not set, then read from file
             try {
                 newGameProp = propertiesConfig.doLoadPropertiesFile("nations.config");
             } catch (IOException ex) {
@@ -164,6 +165,10 @@ public final class SettingsManager implements Serializable {
             }
         }
         return newGameProp;
+    }
+
+    public void setNewGameProperties(Properties props) {
+        newGameProp = props;
     }
 
     /*
