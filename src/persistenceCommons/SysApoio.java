@@ -364,6 +364,10 @@ public class SysApoio implements Serializable {
         return temp.replaceAll("[^\\p{ASCII}]", "");
     }
 
+    public static String stringTokenize(String s) {
+        return removeAcentos(s).replaceAll(" ", "_");
+    }
+
     public static String toTabLinereakFromLinebreak(String s) {
         return s.replaceAll("\n", "\n\t");
     }
