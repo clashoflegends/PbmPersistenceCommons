@@ -67,11 +67,11 @@ final class SysProperties implements Serializable {
             + "drawPcPath=1\n"
             + "LoadActionsBehavior=clean | append -> clear all orders before loading new orders file or just append to existing.\n"
             + "LoadActionsOtherNations=deny | allow -> allows or forbids loading actions from other nations files.\n"
-            + "LookAndFeelTheme=0 | Metal | Nimbus -> forces Counselor to a specific theme, these two look better on high resolution screens."
+            + "LookAndFeelTheme=0 | Metal | Nimbus -> forces Counselor to a specific theme, these two look better on high resolution screens.\n"
             + "LookAndFeelFontSize= 0-72 -> select the system default font size.\n"
             + "TableRowAdjust = 0|1 -> Yes|No, adjust row heights to the content size, important if using larger fonts.\n"
-            + "ActionListHeight = 107-999 -> defines the size for the action list window under the character's tab, to look better on high resolution screens."
-            + "MoveTagTransparency = 0-10 | defines how trasnparent the distance disks are when ploted on map. 0 means no trasnparency, 10 means fully transparent."
+            + "ActionListHeight = 107-999 -> defines the size for the action list window under the character's tab, to look better on high resolution screens.\n"
+            + "MoveTagTransparency = 0-10 | defines how trasnparent the distance disks are when ploted on map. 0 means no trasnparency, 10 means fully transparent.\n"
             + "\n";
 
     /**
