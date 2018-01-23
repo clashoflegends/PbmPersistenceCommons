@@ -68,11 +68,10 @@ public final class SettingsManager implements Serializable {
 
     public String getSaveDir() {
         return SettingsManager.getInstance().getConfig("saveDir");
-//        if (SettingsManager.instance.debug) {
-//            return SettingsManager.getInstance().getConfig("saveDirDebug");
-//        } else {
-//            return SettingsManager.getInstance().getConfig("saveDir");
-//        }
+    }
+
+    public String getSaveLogDir() {
+        return SettingsManager.getInstance().getConfig("saveLogDir", getSaveDir());
     }
 
     public String getSaveStatsDir() {
