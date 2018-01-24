@@ -186,6 +186,10 @@ public final class SettingsManager implements Serializable {
         return SysApoio.parseInt(propertiesConfig.getProps(key));
     }
 
+    public int getConfigAsInt(String key, String defaultValue) {
+        return SysApoio.parseInt(propertiesConfig.getProps(key, defaultValue));
+    }
+
     public String getConfig(String key, String defaultValue) {
         return propertiesConfig.getProps(key, defaultValue);
     }

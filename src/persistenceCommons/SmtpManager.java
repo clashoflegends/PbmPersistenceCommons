@@ -169,12 +169,10 @@ public class SmtpManager implements Serializable {
 
         // send the message
         try {
-
             transport = session.getTransport(getProtocol());
             transport.connect(getLoginNameSmtp(), getPwdSmtp());
             transport.sendMessage(msg, msg.getAllRecipients());
             ret = true;
-
         } catch (SendFailedException ex) {
             Exception mex;
             if ((mex = ex.getNextException()) != null) {
