@@ -183,7 +183,7 @@ final class SysProperties implements Serializable {
         getProps().setProperty("MapTiles", "2b");
         getProps().setProperty("KeepPopupOpen", "0");
         getProps().setProperty("AutoMoveNextAction", "1");
-        getProps().setProperty("AutoSaveActions", "0");
+        getProps().setProperty("AutoSaveActions", "1");
         getProps().setProperty("ActionsMissingPopup", "1");
         getProps().setProperty("SendOrderConfirmationPopUp", "1");
         getProps().setProperty("SendOrderReceiptRequest", "1");
