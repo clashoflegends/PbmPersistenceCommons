@@ -52,7 +52,7 @@ public final class SettingsManager implements Serializable {
     }
 
     public boolean isAutoSaveActions() {
-        return isConfig("AutoSaveActions", "1", "0");
+        return isConfig("AutoSaveActions", "1", "1");
     }
 
     public boolean isDebug() {
