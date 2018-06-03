@@ -28,7 +28,7 @@ import org.apache.http.util.EntityUtils;
  * @author jmoura
  */
 public class WebCounselorManager {
-
+    
     private static final Log log = LogFactory.getLog(WebCounselorManager.class);
     private static WebCounselorManager instance;
     private static final String siteUrl = "http://clashlegends.com/PbmSite/%s.php";
@@ -39,10 +39,10 @@ public class WebCounselorManager {
     public static final int ERROR_UNKOWN = 0;
     private int lastStatusCode;
     private String lastResponseString;
-
+    
     private WebCounselorManager() {
     }
-
+    
     public synchronized static WebCounselorManager getInstance() {
         if (instance == null) {
             log.debug("Criou instancia do WebManager.");
@@ -55,7 +55,7 @@ public class WebCounselorManager {
     public int doSendViaPost(PartidaJogadorWebInfo info) throws PersistenceException {
         try {
             HttpClient client = new DefaultHttpClient();
-
+            
             MultipartEntity entity = new MultipartEntity();
             // o primeiro parametro eh o nome do "campo" onde se espera enviar o arquivo. Deve
             // ser igual ao determinado no PHP. O segundo eh o arquivo local
@@ -70,7 +70,10 @@ public class WebCounselorManager {
             entity.addPart("pCounselorVersion", new StringBody(SysApoio.getVersionClash("version_counselor")));
             entity.addPart("pCommonsVersion", new StringBody(SysApoio.getVersionClash("version_commons")));
             entity.addPart("pScreenSize", new StringBody(SysApoio.getScreenSize()));
+            entity.addPart("pPortraitStatus", new StringBody(getbooleanStatus(SettingsManager.getInstance().isPortrait())));
             entity.addPart("pMapTiles", new StringBody(SettingsManager.getInstance().getConfig("MapTiles", "2b")));
+            entity.addPart("pLanguage", new StringBody(SettingsManager.getInstance().getConfig("language", "??")));
+            entity.addPart("pOrdersAutoSave", new StringBody(getbooleanStatus(SettingsManager.getInstance().isAutoSaveActions())));
             if (SettingsManager.getInstance().getConfig("SendOrderReceiptRequest", "1").equals("1")) {
                 entity.addPart("pTextBody", new StringBody(info.getOrders()));
                 entity.addPart("pPartidaName", new StringBody(info.getGameNm()));
@@ -113,28 +116,36 @@ public class WebCounselorManager {
         }
         return ERROR_UNKOWN;
     }
-
+    
     private URI getUrl(String webpage) throws URISyntaxException {
         return new URI(String.format(siteUrl, webpage));
     }
-
+    
     private String responseToString(HttpResponse response) throws ParseException, IOException {
         return EntityUtils.toString(response.getEntity());
     }
-
+    
     public int getLastStatusCode() {
         return lastStatusCode;
     }
-
+    
     private void setLastStatusCode(int lastStatusCode) {
         this.lastStatusCode = lastStatusCode;
     }
-
+    
     public String getLastResponseString() {
         return lastResponseString;
     }
-
+    
     private void setLastResponseString(String lastResponseString) {
         this.lastResponseString = lastResponseString;
+    }
+    
+    private String getbooleanStatus(boolean portrait) {
+        if (portrait) {
+            return "ON";
+        } else {
+            return "OFF";
+        }
     }
 }
