@@ -8,9 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -144,17 +146,54 @@ public class ZipManager implements Serializable {
             out.flush();
             out.close();
         } catch (IOException ex) {
-            throw new PersistenceException(label.getString("ZIP.ERROR.CORRUPTED"),ex);
+            throw new PersistenceException(label.getString("ZIP.ERROR.CORRUPTED"), ex);
         }
         return ret;
+    }
+
+    /**
+     * Uncompress the incoming file.
+     *
+     * @param inFileName Name of the file to be uncompressed
+     */
+    public boolean doUncompressZip(File zipFile, File outTarget) throws PersistenceException {
+        try {
+            int BUFFER = 2048;
+            ZipFile zip = new ZipFile(zipFile);
+            outTarget.mkdirs();
+            Enumeration zipFileEntries = zip.entries();
+            while (zipFileEntries.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+                String currentEntry = entry.getName();
+                File destFile = new File(outTarget, currentEntry);
+                File destinationParent = destFile.getParentFile();
+                destinationParent.mkdirs();
+                if (!entry.isDirectory()) {
+                    BufferedInputStream is = new BufferedInputStream(zip.getInputStream(entry));
+                    int currentByte;
+                    byte data[] = new byte[BUFFER];
+                    FileOutputStream fos = new FileOutputStream(destFile);
+                    BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);
+                    while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
+                        dest.write(data, 0, currentByte);
+                    }
+                    dest.flush();
+                    dest.close();
+                    is.close();
+                }
+            }
+            return true;
+        } catch (IOException ex) {
+            log.error("Could not open zip file" + zipFile.getName(), ex);
+        }
+        return false;
     }
 
     /**
      * Used to extract the filename without its extension.
      *
      * @param f Incoming file to get the filename
-     * @return <code>String</code> representing the filename without its
-     * extension.
+     * @return <code>String</code> representing the filename without its extension.
      */
     private static String getFileName(String f) {
         String fname = "";
@@ -170,8 +209,7 @@ public class ZipManager implements Serializable {
      * Used to extract and return the extension of a given file.
      *
      * @param f Incoming file to get the extension of
-     * @return <code>String</code> representing the extension of the incoming
-     * file.
+     * @return <code>String</code> representing the extension of the incoming file.
      */
     private static String getExtension(String f) {
         String ext = "";
