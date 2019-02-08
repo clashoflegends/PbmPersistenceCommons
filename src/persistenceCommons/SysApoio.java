@@ -10,6 +10,7 @@ package persistenceCommons;
 
 import com.ibm.icu.text.Normalizer;
 import java.awt.AWTException;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
@@ -803,4 +804,15 @@ public class SysApoio implements Serializable {
             log.error(ex);
         }
     }
+
+    /**
+     * converts Color to HTML Hexa format
+     * @param color
+     * @return 
+     */
+    public static String colorToHexa(Color color) {
+        final String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());  
+        return hex;
+    }
+
 }
