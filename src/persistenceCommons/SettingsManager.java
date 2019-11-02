@@ -200,12 +200,16 @@ public final class SettingsManager implements Serializable {
 
     public void setConfigAndSaveToFile(String key, String value) {
         setConfig(key, value);
+        saveToFile();
+    }
+
+    public void saveToFile() {
         propertiesConfig.doSavePropertiesToFile();
     }
 
     /**
-     * Checks if the value stored in the key matches comparisonValue. If the key does not exists, then it compares defaultValue to comparisonValue
-     * instead. All comparisons are case insensitive
+     * Checks if the value stored in the key matches comparisonValue. If the key does not exists, then it compares defaultValue to comparisonValue instead. All
+     * comparisons are case insensitive
      *
      * @param key
      * @param comparisonValue
