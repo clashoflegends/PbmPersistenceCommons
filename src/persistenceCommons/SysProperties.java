@@ -229,7 +229,6 @@ final class SysProperties implements Serializable {
                     return o1.toString().compareTo(o2.toString());
                 }
             });
-            System.out.println("persistenceCommons.SysProperties.MyProperties.keys()");
 
             return keyList.elements();
         }
