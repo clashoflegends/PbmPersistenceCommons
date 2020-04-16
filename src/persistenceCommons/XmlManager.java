@@ -69,8 +69,6 @@ public class XmlManager implements Serializable {
             throw new PersistenceException(label.getString("ARQUIVO.NAO.ENCONTRADO") + inFile.getAbsolutePath());
         } catch (UnsupportedEncodingException ex) {
             throw new PersistenceException(label.getString("ARQUIVO.CORROMPIDO") + inFile.getAbsolutePath());
-        } catch (IOException e) {
-            throw new PersistenceException(label.getString("IO.ERROR"));
         } catch (PersistenceException e) {
             throw new PersistenceException(e.getMessage());
         } catch (com.thoughtworks.xstream.converters.ConversionException ex) {
