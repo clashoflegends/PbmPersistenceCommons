@@ -24,7 +24,6 @@ public final class SettingsManager implements Serializable {
     private Locale locale;
     private boolean debug = false;
     private BundleManager bundleManager;
-    private String worldFilename = "";
     private boolean worldBuilder = false;
     private boolean portrait = false;
     private boolean tableColumnAdjust = true;
