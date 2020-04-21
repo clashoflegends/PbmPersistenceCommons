@@ -4,7 +4,6 @@
  */
 package persistenceCommons;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -247,19 +246,4 @@ public final class SettingsManager implements Serializable {
     /*
      SysProperties encapsulation ends
      */
-    /**
-     *
-     * @param resultsFile
-     */
-    public void setWorldFilename(String resultsFile) {
-        this.worldFilename = resultsFile;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getWorldFilename() {
-        return this.worldFilename;
-    }
 }
