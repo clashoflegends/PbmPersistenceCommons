@@ -79,8 +79,8 @@ final class SysProperties implements Serializable {
             + "LookAndFeelFontSize= 0-72 -> select the system default font size.\n"
             + "TableRowAdjust = 0|1 -> Yes|No, adjust row heights to the content size, important if using larger fonts.\n"
             + "ActionListHeight = 107-999 -> defines the size for the action list window under the character's tab, to look better on high resolution screens.\n"
-            + "MoveTagTransparency = 0-10 | defines how transparent the distance disks are when ploted on map. 0 means no trasnparency, 10 means fully transparent.\n"
-            + "ShowCharacterPortraits = 0|1 -> Hide|Show, displays the characters portrats or not.\n"
+            + "MoveTagTransparency = 0-10 | defines how transparent the distance disks are when plotted on map. 0 means no transparency, 10 means fully transparent.\n"
+            + "ShowCharacterPortraits = 0|1 -> Hide|Show, displays the characters portraits or not.\n"
             + "PortraitsFolder = path of the folder with portraits, select using the Config screen.\n"
             + "\n";
 
