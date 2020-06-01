@@ -539,8 +539,8 @@ public class SysApoio implements Serializable {
      *
      * @param array the array to search through for the object, may * * * * * * be <code>null</code>
      * @param objectToFind the object to find, may be <code>null</code>
-     * @return the index of the object within the array, {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found * * * * * * * * or <code>null</code>
-     * array input
+     * @return the index of the object within the array, {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found * * * * * * * * or <code>null</code> array
+     * input
      */
     public static int indexOf(Object[] array, Object objectToFind) {
         return indexOf(array, objectToFind, 0);
@@ -554,14 +554,13 @@ public class SysApoio implements Serializable {
      * This method returns {@link #INDEX_NOT_FOUND} ( <code>-1</code>) for a <code>null</code> input array.</p>
      *
      * <p>
-     * A negative startIndex is treated as zero. A startIndex larger than the array length will return {@link #INDEX_NOT_FOUND} (
-     * <code>-1</code>).</p>
+     * A negative startIndex is treated as zero. A startIndex larger than the array length will return {@link #INDEX_NOT_FOUND} ( <code>-1</code>).</p>
      *
      * @param array the array to search through for the object, may * * * * * * be <code>null</code>
      * @param objectToFind the object to find, may be <code>null</code>
      * @param startIndex the index to start searching at
-     * @return the index of the object within the array starting at the index, {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found * * * * * * * *
-     * or <code>null</code> array input
+     * @return the index of the object within the array starting at the index, {@link #INDEX_NOT_FOUND} (<code>-1</code>) if not found * * * * * * * * or
+     * <code>null</code> array input
      */
     public static int indexOf(Object[] array, Object objectToFind, int startIndex) {
         int INDEX_NOT_FOUND = -1;
@@ -639,6 +638,14 @@ public class SysApoio implements Serializable {
     }
 
     public static String pointToCoord(Integer col, Integer row) {
+        String newIdentificacao;
+        //converte de volta para string e retorna o Hex
+        DecimalFormat formato = new DecimalFormat("00");
+        newIdentificacao = formato.format(col) + formato.format(row);
+        return newIdentificacao;
+    }
+
+    public static String pointToCoord(double col, double row) {
         String newIdentificacao;
         //converte de volta para string e retorna o Hex
         DecimalFormat formato = new DecimalFormat("00");
@@ -807,11 +814,12 @@ public class SysApoio implements Serializable {
 
     /**
      * converts Color to HTML Hexa format
+     *
      * @param color
-     * @return 
+     * @return
      */
     public static String colorToHexa(Color color) {
-        final String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());  
+        final String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
         return hex;
     }
 
