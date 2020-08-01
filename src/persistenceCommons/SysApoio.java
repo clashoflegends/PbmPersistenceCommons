@@ -8,7 +8,6 @@
  */
 package persistenceCommons;
 
-import com.ibm.icu.text.Normalizer;
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Component;
@@ -23,6 +22,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -359,10 +359,12 @@ public class SysApoio implements Serializable {
         tempoInicio = aTempoInicio;
     }
 
-    public static String removeAcentos(String s) {
+    public static String removeAcentos(String text) {
 //        String temp = Normalizer.normalize(s, Normalizer.DECOMP, 0);
-        String temp = Normalizer.normalize(s, Normalizer.NFD, 0);
-        return temp.replaceAll("[^\\p{ASCII}]", "");
+        String temp = Normalizer.normalize(text, Normalizer.Form.NFD);
+        temp = temp.replaceAll("\\p{M}", "");
+        temp = temp.replaceAll("[^\\p{ASCII}]", "");
+        return temp;
     }
 
     public static String stringTokenize(String s) {
