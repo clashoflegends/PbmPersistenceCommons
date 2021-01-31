@@ -23,6 +23,7 @@ public final class SettingsManager implements Serializable {
     private String configurationMode = "Client";
     private Locale locale;
     private boolean debug = false;
+    private boolean rules = false;
     private BundleManager bundleManager;
     private boolean worldBuilder = false;
     private boolean portrait = false;
@@ -64,6 +65,15 @@ public final class SettingsManager implements Serializable {
             log.info("Entrando no modo de DEBUG: " + debug);
         }
         SettingsManager.instance.debug = debug;
+    }
+
+    public boolean isRules() {
+        return SettingsManager.instance.debug;
+    }
+
+    public void setRules(boolean rules) {
+        log.info("Changing status of RULES: " + rules);
+        SettingsManager.instance.rules = rules;
     }
 
     public String getSaveDir() {
