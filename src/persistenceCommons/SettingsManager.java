@@ -68,7 +68,7 @@ public final class SettingsManager implements Serializable {
     }
 
     public boolean isRules() {
-        return SettingsManager.instance.debug;
+        return SettingsManager.instance.rules;
     }
 
     public void setRules(boolean rules) {
