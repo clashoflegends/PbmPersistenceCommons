@@ -34,8 +34,8 @@ import org.apache.commons.logging.LogFactory;
  * This demonstrates how to use the FileDataSource to send a file via mail.<p>
  *
  * usage: <code>java sendfile <i>to from smtp file true|false</i></code> where
- * <i>to</i> and <i>from</i> are the destination and origin email addresses, respectively, and <i>smtp</i> is the hostname of the machine that has
- * smtp server running. <i>file</i> is the file to send. The next parameter either turns on or turns off debugging during sending.
+ * <i>to</i> and <i>from</i> are the destination and origin email addresses, respectively, and <i>smtp</i> is the hostname of the machine that has smtp server
+ * running. <i>file</i> is the file to send. The next parameter either turns on or turns off debugging during sending.
  *
  * @author	Christopher Cotton
  */
@@ -49,9 +49,9 @@ public class SmtpManager implements Serializable {
     private String pwdSmtp = "raistlin";
     //ask the user
     private String toMain = "clashoflegends.thegame@gmail.com";
-    private final List<InternetAddress> toCcList = new ArrayList<InternetAddress>();
+    private final List<InternetAddress> toCcList = new ArrayList<>();
     //prepared by the application
-    private final List<File> attachmentList = new ArrayList<File>();
+    private final List<File> attachmentList = new ArrayList<>();
     private String body = "Sending a file.\n";
     private String subject = "Sending a file 5 + timestamp!";
     //fixed/hidden
@@ -319,6 +319,14 @@ public class SmtpManager implements Serializable {
 
     public void setToMain(String toMain) {
         this.toMain = toMain;
+    }
+
+    public String getAddresses() {
+        String listAddresses = this.toMain + "";
+        for (InternetAddress internetAddress : getToCcList()) {
+            listAddresses += ", " + internetAddress.getAddress();
+        }
+        return listAddresses;
     }
 
     /**
