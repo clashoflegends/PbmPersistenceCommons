@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package persistenceCommons;
+package persistenceCommons.mail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,6 +27,9 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import persistenceCommons.BundleManager;
+import persistenceCommons.PersistenceException;
+import persistenceCommons.SettingsManager;
 
 /**
  * sendfile will create a multipart message with the second block of the message being the given file.<p>
@@ -44,9 +47,13 @@ public class SmtpManager implements Serializable {
     //Connection mandatory to be set.
     private boolean gmail = false;
     private String from = "NA";
-    private String hostSmtp = "smtp.pobox.com";
-    private String loginNameSmtp = "gurgel@pobox.com";
-    private String pwdSmtp = "raistlin";
+    private final String hostSmtp = "smtp.gmail.com";
+    private final String loginNameSmtp = "clashoflegends.thegame@gmail.com";
+    private final String pwdSmtp = "edvzykkaqmwnblim";
+
+    //private String hostSmtp = "smtp.pobox.com";
+    //private String loginNameSmtp = "gurgel@pobox.com";
+    //private String pwdSmtp = "0q107qgh6lfz$e";
     //ask the user
     private String toMain = "clashoflegends.thegame@gmail.com";
     private final List<InternetAddress> toCcList = new ArrayList<>();
@@ -85,6 +92,7 @@ public class SmtpManager implements Serializable {
         Properties props = System.getProperties();
         props.put("mail.smtp.host", getHostSmtp());
         props.put("mail." + getProtocol() + ".auth", "true");
+        props.put("mail.smtp.EnableSSL.enable", "true");
         if (isGmail()) {
             setFrom("clashoflegends.thegame@gmail.com");
             props.put("mail.smtp.port", "587");
@@ -162,6 +170,7 @@ public class SmtpManager implements Serializable {
 
     public boolean sendMsg() throws PersistenceException {
         if (SettingsManager.getInstance().getConfig("local").equalsIgnoreCase("Desenv")) {
+            //don't send emails in dev
             return false;
         }
 
@@ -209,96 +218,6 @@ public class SmtpManager implements Serializable {
             }
         }
         return true;
-    }
-
-    public boolean sendCounselor() throws PersistenceException {
-        boolean ret = false;
-        try {
-            doLoadSmtpProperties();
-            // create some properties and get the default Session
-            Authenticator authenticator = null;
-            Properties props = System.getProperties();
-            props.put("mail.smtp.host", getHostSmtp());
-            props.put("mail." + getProtocol() + ".auth", "true");
-            session = Session.getInstance(props, authenticator);
-            session.setDebug(mailDebug);
-        } catch (NullPointerException ex) {
-            log.fatal(ex, ex.fillInStackTrace());
-            throw new PersistenceException(ex);
-        }
-        try {
-            // create a message
-            msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(getFrom()));
-            //InternetAddress[] address = {new InternetAddress(toMain), new InternetAddress(getToCc())};
-            List<InternetAddress> addressList = new ArrayList();
-            addressList.add(new InternetAddress(toMain));
-            if (!getToCcList().isEmpty()) {
-                addressList.addAll(getToCcList());
-            }
-            msg.setRecipients(Message.RecipientType.TO, addressList.toArray(new InternetAddress[0]));
-            msg.setSubject(getSubject());
-
-            // create the Multipart and add its parts to it
-            Multipart mp = new MimeMultipart();
-
-            // create and fill the first message part
-            MimeBodyPart mbp1 = new MimeBodyPart();
-            mbp1.setText(getBody());
-            mp.addBodyPart(mbp1);
-
-            // create the second message part
-            if (!getAttachmentList().isEmpty()) {
-                for (File file : getAttachmentList()) {
-                    MimeBodyPart mbp2 = new MimeBodyPart();
-                    mbp2.attachFile(file);
-                    mp.addBodyPart(mbp2);
-                }
-            } else {
-                MimeBodyPart mbp2 = new MimeBodyPart();
-                mbp2.setText(label.getString("MISSING.ATTACHMENT"));
-                mp.addBodyPart(mbp2);
-            }
-
-            // add the Multipart to the message
-            msg.setContent(mp);
-
-            // set the Date: header
-            msg.setSentDate(new Date());
-
-            // send the message
-            transport = session.getTransport(getProtocol());
-            try {
-                transport.connect(getLoginNameSmtp(), getPwdSmtp());
-                transport.sendMessage(msg, msg.getAllRecipients());
-                ret = true;
-
-            } catch (SendFailedException ex) {
-                Exception mex;
-                if ((mex = ex.getNextException()) != null) {
-                    throw new PersistenceException(mex.getMessage());
-                } else {
-                    throw new PersistenceException(ex.getMessage());
-                }
-            } catch (MessagingException ex) {
-                log.info(ex);
-            } finally {
-                transport.close();
-            }
-
-            //done
-        } catch (FileNotFoundException ex) {
-            throw new PersistenceException(ex.getMessage());
-        } catch (MessagingException mex) {
-            //log.fatal(mex);
-            Exception ex;
-            if ((ex = mex.getNextException()) != null) {
-                throw new PersistenceException(ex.getMessage());
-            }
-        } catch (IOException ex) {
-            throw new PersistenceException(ex.getMessage());
-        }
-        return ret;
     }
 
     private List<InternetAddress> getToCcList() {
@@ -390,43 +309,43 @@ public class SmtpManager implements Serializable {
     /**
      * @return the hostSmtp
      */
-    public String getHostSmtp() {
+    private String getHostSmtp() {
         return hostSmtp;
     }
 
     /**
      * @param hostSmtp the hostSmtp to set
      */
-    public void setHostSmtp(String hostSmtp) {
-        this.hostSmtp = hostSmtp;
+    private void setHostSmtp(String hostSmtp) {
+//        this.hostSmtp = hostSmtp;
     }
 
     /**
      * @return the loginNameSmtp
      */
-    public String getLoginNameSmtp() {
+    private String getLoginNameSmtp() {
         return loginNameSmtp;
     }
 
     /**
      * @param loginNameSmtp the loginNameSmtp to set
      */
-    public void setLoginNameSmtp(String loginNameSmtp) {
-        this.loginNameSmtp = loginNameSmtp;
+    private void setLoginNameSmtp(String loginNameSmtp) {
+//        this.loginNameSmtp = loginNameSmtp;
     }
 
     /**
      * @return the pwdSmtp
      */
-    public String getPwdSmtp() {
+    private String getPwdSmtp() {
         return pwdSmtp;
     }
 
     /**
      * @param pwdSmtp the pwdSmtp to set
      */
-    public void setPwdSmtp(String pwdSmtp) {
-        this.pwdSmtp = pwdSmtp;
+    private void setPwdSmtp(String pwdSmtp) {
+//        this.pwdSmtp = pwdSmtp;
     }
 
     /**

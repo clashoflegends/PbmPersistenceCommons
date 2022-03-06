@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package persistenceCommons;
+package persistenceCommons.mail;
 
 import java.io.Serializable;
 import org.apache.commons.logging.Log;
