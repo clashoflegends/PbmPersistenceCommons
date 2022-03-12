@@ -9,7 +9,7 @@ import java.io.File;
  */
 /**
  *
- * @author jmoura
+ * @author jmoura 
  */
 public class PartidaJogadorWebInfo {
 
