@@ -217,7 +217,7 @@ final class SysProperties implements Serializable {
         @Override
         public Enumeration<Object> keys() {
             Enumeration<Object> keysEnum = super.keys();
-            Vector<Object> keyList = new Vector<Object>();
+            Vector<Object> keyList = new Vector<>();
 
             while (keysEnum.hasMoreElements()) {
                 keyList.add(keysEnum.nextElement());
@@ -254,6 +254,8 @@ final class SysProperties implements Serializable {
         getProps().setProperty("KeepPopupOpen", "0");
         getProps().setProperty("AutoMoveNextAction", "1");
         getProps().setProperty("AutoSaveActions", "1");
+        getProps().setProperty("LifeLimitRed", "25");
+        getProps().setProperty("LifeLimitAmber", "60");
         getProps().setProperty("ActionsMissingPopup", "1");
         getProps().setProperty("SendOrderConfirmationPopUp", "1");
         getProps().setProperty("SendOrderReceiptRequest", "1");
