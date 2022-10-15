@@ -40,7 +40,7 @@ final class SysProperties implements Serializable {
     private final String comentario = "Counselor config file\n"
             + "filtro.default=0|1 -> All|Own\n"
             + "SortAllCombos=0|1 -> Off|On\n"
-            + "FogOfWarType=0|1 -> Off|On\n"
+            + "fogOfWarType=0|1 -> Off|On\n"
             + "maximizeWindowOnStart = 0|1 -> normal|maximize\n"
             + "minimizeMapOnStart = 0|1 -> view|hide\n"
             + "saveDir =/folder/folder/, default folder to save orders (use / as opposed to \\).\n"
@@ -66,13 +66,15 @@ final class SysProperties implements Serializable {
             + "SendOrderConfirmationPopUp=0|1 - Show pop-up message with confirmation or not.\n"
             + "SendOrderReceiptRequest=0|1 - Request site to send a confirmation receipt or not.\n"
             + "ShowArmyMovPath=0|1|2 -> allows you to see all possible movement paths for an army(1) or navy(2). (0) disable it.\n"
+            + "drawArmyMovPath=0|1 -> allows you to see movement paths for armies(1). (0) disable it.\n"
+            + "drawScoutOnMap=0|1 -> allows you to see the center of all scout and recon orders on map. (0) disable it.\n"
+            + "drawPcPath=0|1|2|3 -> allows you to see movement paths for a PC. (0) disable it. (2) shows last turn path. (3) shows orders, future, path. (1) shows both past and orders path.\n"
             + "MapTiles = 2b | 2d | 2a | 3d, changes the basic hex terrain tiles.\n"
             + "AutoMoveNextAction = 0|1, changes the behavior entering actions. If =1, then move to next available slot.\n"
             + "mail.smtp.server=smtp.myserver.com, smtp server name to be used.\n"
             + "mail.smpt.port=25, smtp port to be used. Only port 25 is supported right now.\n"
             + "mail.smtp.user=myuser, username for smtp authentication.\n"
             + "mail.smtp.passwd=my password, password for smtp authentication.\n"
-            + "drawPcPath=1\n"
             + "LoadActionsBehavior=clean | append -> clear all orders before loading new orders file or just append to existing.\n"
             + "LoadActionsOtherNations=deny | allow -> allows or forbids loading actions from other nations files.\n"
             + "LookAndFeelTheme=0 | Metal | Nimbus -> forces Counselor to a specific theme, these two look better on high resolution screens.\n"
@@ -179,14 +181,14 @@ final class SysProperties implements Serializable {
 
             @Override
             public Set<Object> keySet() {
-                return Collections.unmodifiableSet(new TreeSet<Object>(super.keySet()));
+                return Collections.unmodifiableSet(new TreeSet<>(super.keySet()));
             }
 
             @Override
             public Set<Map.Entry<Object, Object>> entrySet() {
 
                 Set<Map.Entry<Object, Object>> set1 = super.entrySet();
-                Set<Map.Entry<Object, Object>> set2 = new LinkedHashSet<Map.Entry<Object, Object>>(set1.size());
+                Set<Map.Entry<Object, Object>> set2 = new LinkedHashSet<>(set1.size());
 
                 Iterator<Map.Entry<Object, Object>> iterator = set1.stream().sorted(new Comparator<Map.Entry<Object, Object>>() {
 
@@ -205,7 +207,7 @@ final class SysProperties implements Serializable {
 
             @Override
             public synchronized Enumeration<Object> keys() {
-                return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+                return Collections.enumeration(new TreeSet<>(super.keySet()));
             }
         };
     }
@@ -250,6 +252,7 @@ final class SysProperties implements Serializable {
         getProps().setProperty("HexTagStyle", "0");
         getProps().setProperty("HexTagFrame", "0");
         getProps().setProperty("ShowArmyMovPath", "1");
+        getProps().setProperty("drawScoutOnMap", "1");
         getProps().setProperty("MapTiles", "2b");
         getProps().setProperty("KeepPopupOpen", "0");
         getProps().setProperty("AutoMoveNextAction", "1");
