@@ -65,8 +65,8 @@ public class BundleManager implements Serializable {
         }
         //YYY: to deactivate the fatal stop when a string is not found
 //                throw new UnsupportedOperationException("Missing string: " + label);
-        log.fatal("Missing string: " + label);
-        return "N/A (Missing Translation)";
+        log.fatal("Missing string Translation: " + label);
+        return String.format("N/A (Missing Translation: %s)", label);
     }
 
     public String getString(String label, Locale locale) {
@@ -88,8 +88,8 @@ public class BundleManager implements Serializable {
         }
         //YYY: to deactivate the fatal stop when a string is not found
 //                throw new UnsupportedOperationException("Missing string: " + label);
-        log.fatal("Missing string: " + label);
-        return "N/A (Missing Translation)";
+        log.fatal("Missing Translation string: " + label);
+        return String.format("N/A (Missing Translation: %s)", label);
     }
 
     public String format(String base, Object[] placeholders) {
