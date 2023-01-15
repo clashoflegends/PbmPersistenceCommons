@@ -93,28 +93,30 @@ public class WebCounselorManager {
             HttpResponse response = client.execute(post);
             long end = System.currentTimeMillis();
             if (SettingsManager.getInstance().isConfig("DebugWebpostTime", "1", "0")) {
-                log.info("Round trip response time from server = " + (end - start) + " millis");
+                log.info("Round trip response time from server = " + (end - start) + " milliseconds");
             }
 
             setLastStatusCode(response.getStatusLine().getStatusCode());
             setLastResponseString(responseToString(response));
             //process responses
-            if (response.getStatusLine().getStatusCode() == OK) {
-                return OK;
-            } else if (response.getStatusLine().getStatusCode() == ERROR_GAMECLOSED) {
-                log.debug(getLastResponseString());
-                return ERROR_GAMECLOSED;
-            } else if (response.getStatusLine().getStatusCode() == ERROR_TURN) {
-                log.debug(getLastResponseString());
-                List<String> ret = new ArrayList<String>();
-                ret.addAll(Arrays.asList(SysApoio.stringToArray(getLastResponseString())));
-                setLastResponseString(ret.get(0));
-                return ERROR_TURN;
-            } else {
-                log.error(response.getProtocolVersion());
-                log.error(response.getStatusLine().getStatusCode());
-                log.error(response.getStatusLine().getReasonPhrase());
-                log.error(getLastResponseString());
+            switch (response.getStatusLine().getStatusCode()) {
+                case OK:
+                    return OK;
+                case ERROR_GAMECLOSED:
+                    log.debug(getLastResponseString());
+                    return ERROR_GAMECLOSED;
+                case ERROR_TURN:
+                    log.debug(getLastResponseString());
+                    List<String> ret = new ArrayList<>();
+                    ret.addAll(Arrays.asList(SysApoio.stringToArray(getLastResponseString())));
+                    setLastResponseString(ret.get(0));
+                    return ERROR_TURN;
+                default:
+                    log.error(response.getProtocolVersion());
+                    log.error(response.getStatusLine().getStatusCode());
+                    log.error(response.getStatusLine().getReasonPhrase());
+                    log.error(getLastResponseString());
+                    break;
             }
         } catch (URISyntaxException ex) {
             throw new PersistenceException("Can't connect to site (http://clashlegends.com/PbmSite/): " + ex.toString());
