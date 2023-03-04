@@ -724,27 +724,14 @@ public class SysApoio implements Serializable {
                     } catch (java.util.MissingResourceException e) {
                         log.fatal("Missing Label: {" + elemLabel + "}", e);
                         throw new UnsupportedOperationException(e);
-                    } catch (java.util.MissingFormatArgumentException e) {
+                    } catch (java.util.MissingFormatArgumentException | java.util.IllegalFormatConversionException | java.util.UnknownFormatConversionException e) {
                         log.fatal("linha: " + linha);
                         log.fatal("temp: " + Arrays.toString(temp));
                         log.fatal("elemLabel: " + elemLabel);
                         log.fatal("Labels: " + labels.getString(elemLabel));
                         log.fatal(e);
-                        throw new UnsupportedOperationException(e);
-                    } catch (java.util.IllegalFormatConversionException e) {
-                        log.fatal("linha: " + linha);
-                        log.fatal("temp: " + Arrays.toString(temp));
-                        log.fatal("elemLabel: " + elemLabel);
-                        log.fatal("Labels: " + labels.getString(elemLabel));
-                        log.fatal(e);
-                        throw new UnsupportedOperationException(e);
-                    } catch (java.util.UnknownFormatConversionException e) {
-                        log.fatal("linha: " + linha);
-                        log.fatal("temp: " + Arrays.toString(temp));
-                        log.fatal("elemLabel: " + elemLabel);
-                        log.fatal("Labels: " + labels.getString(elemLabel));
-                        log.fatal(e);
-                        throw new UnsupportedOperationException(e);
+                        final String errorMsg = String.format("Ex=%s; Linha=%s; Label=%s", e.toString(), linha, labels.getString(elemLabel));
+                        throw new UnsupportedOperationException(errorMsg,e);
                     }
                     //parametros podem ser labels, entao decodifica de novo a linha
 
