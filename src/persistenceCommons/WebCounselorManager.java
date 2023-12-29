@@ -88,11 +88,11 @@ public class WebCounselorManager {
             post.setEntity(entity);
 
             // faz a chamada......
-            log.debug("Executing request: " + post.getRequestLine());
             //String response = client.execute(post, new BasicResponseHandler());
             HttpResponse response = client.execute(post);
             long end = System.currentTimeMillis();
             if (SettingsManager.getInstance().isConfig("DebugWebpostTime", "1", "0")) {
+                log.info("Executing request: " + post.getRequestLine());
                 log.info("Round trip response time from server = " + (end - start) + " milliseconds");
             }
 
