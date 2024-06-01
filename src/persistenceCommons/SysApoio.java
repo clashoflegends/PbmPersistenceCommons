@@ -18,6 +18,8 @@ import java.awt.Image;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -731,7 +733,7 @@ public class SysApoio implements Serializable {
                         log.fatal("Labels: " + labels.getString(elemLabel));
                         log.fatal(e);
                         final String errorMsg = String.format("Ex=%s; Linha=%s; Label=%s", e.toString(), linha, labels.getString(elemLabel));
-                        throw new UnsupportedOperationException(errorMsg,e);
+                        throw new UnsupportedOperationException(errorMsg, e);
                     }
                     //parametros podem ser labels, entao decodifica de novo a linha
 
@@ -820,4 +822,12 @@ public class SysApoio implements Serializable {
         return hex;
     }
 
+    /**
+     * Place a String on the clipboard, and make this class the owner of the Clipboard's contents.
+     */
+    public static void setClipboardContents(String string) {
+        StringSelection stringSelection = new StringSelection(string);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+    }
 }
