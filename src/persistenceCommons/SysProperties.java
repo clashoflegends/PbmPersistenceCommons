@@ -41,6 +41,7 @@ final class SysProperties implements Serializable {
             + "filtro.default=0|1 -> All|Own\n"
             + "SortAllCombos=0|1 -> Off|On\n"
             + "fogOfWarType=0|1 -> Off|On\n"
+            + "showCityCap=0|1 -> Off|On\n"
             + "maximizeWindowOnStart = 0|1 -> normal|maximize\n"
             + "minimizeMapOnStart = 0|1 -> view|hide\n"
             + "saveDir =/folder/folder/, default folder to save orders (use / as opposed to \\).\n"
