@@ -759,10 +759,10 @@ public class SysApoio implements Serializable {
         } catch (NullPointerException e) {
             //just ignore null strings
         } catch (java.util.MissingResourceException e) {
-            log.fatal(input, e);
+            log.fatal("MissingResourceException " + input, e);
             throw new UnsupportedOperationException(e);
         } catch (java.lang.StringIndexOutOfBoundsException e) {
-            log.fatal(input, e);
+            log.fatal("StringIndexOutOfBoundsException " + input, e);
             throw new UnsupportedOperationException(e);
         }
         //para debug: imprime o conteudo do banco de dados nos resultados.
