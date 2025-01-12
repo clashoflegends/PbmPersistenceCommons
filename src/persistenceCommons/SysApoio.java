@@ -320,9 +320,7 @@ public class SysApoio implements Serializable {
                 return 0;
             }
             return Integer.valueOf(numero);
-        } catch (NumberFormatException nfe) {
-            return -9999;
-        } catch (NullPointerException nfe) {
+        } catch (NumberFormatException | NullPointerException nfe) {
             return -9999;
         }
     }
@@ -359,6 +357,21 @@ public class SysApoio implements Serializable {
 
     public static void setMyFormatter(DecimalFormat aMyFormatter) {
         myFormatter = aMyFormatter;
+    }
+
+    public static String getFormatedNumber(int number) {
+        return myFormatter.format(number);
+    }
+
+    /**
+     *
+     * @param number
+     * @param mask = "#,###.00" || "#,###"
+     * @return
+     */
+    public static String getFormatedNumber(int number, String mask) {
+        DecimalFormat formatter = new DecimalFormat(mask);
+        return formatter.format(number);
     }
 
     public static long getTempoInicio() {
@@ -454,7 +467,7 @@ public class SysApoio implements Serializable {
 
     public static List<String[]> stringToArray(String vetorString, String rowSpliter, String fieldSpliter, int limit) {
         String[] vet = vetorString.split(rowSpliter);
-        List<String[]> ret = new ArrayList<String[]>(vet.length);
+        List<String[]> ret = new ArrayList<>(vet.length);
         for (String elem : vet) {
             final String[] temp = stringToArray(elem, fieldSpliter, limit);
             ret.add(temp);
