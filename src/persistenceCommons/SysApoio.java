@@ -355,11 +355,15 @@ public class SysApoio implements Serializable {
         return myFormatter;
     }
 
-    public static void setMyFormatter(DecimalFormat aMyFormatter) {
+    private static void setMyFormatter(DecimalFormat aMyFormatter) {
         myFormatter = aMyFormatter;
     }
 
     public static String getFormatedNumber(int number) {
+        return myFormatter.format(number);
+    }
+
+    public static String getFormatedNumber(Object number) {
         return myFormatter.format(number);
     }
 
