@@ -74,8 +74,12 @@ public class XmlManager implements Serializable {
         } catch (com.thoughtworks.xstream.converters.ConversionException ex) {
             log.error(ex);
             throw new PersistenceException(
-                    String.format(label.getString("ARQUIVO.INCOMPATIVEL"),
-                            inFile.getAbsolutePath()));
+                    String.format(
+                            label.getString("ARQUIVO.INCOMPATIVEL.PATH"),
+                            inFile.getAbsolutePath(),
+                            ex.get("path")
+                    )
+            );
         } catch (Exception e) {
             throw new PersistenceException(e.getMessage());
         } finally {
@@ -90,8 +94,7 @@ public class XmlManager implements Serializable {
     }
 
     /**
-     * Cria o arquivo temporario para gerar o XML Chama o Zip para gerar o
-     * arquivo final
+     * Cria o arquivo temporario para gerar o XML Chama o Zip para gerar o arquivo final
      *
      * @param world
      * @param finalFile
@@ -144,8 +147,7 @@ public class XmlManager implements Serializable {
      * Used to extract and return the extension of a given file.
      *
      * @param f Incoming file to get the extension of
-     * @return <code>String</code> representing the extension of the incoming
-     * file.
+     * @return <code>String</code> representing the extension of the incoming file.
      */
     private static String getExtension(String f) {
         String ext = "";
@@ -161,8 +163,7 @@ public class XmlManager implements Serializable {
      * Used to extract the filename without its extension.
      *
      * @param f Incoming file to get the filename
-     * @return <code>String</code> representing the filename without its
-     * extension.
+     * @return <code>String</code> representing the filename without its extension.
      */
     private static String getFileName(String f) {
         String fname = "";
