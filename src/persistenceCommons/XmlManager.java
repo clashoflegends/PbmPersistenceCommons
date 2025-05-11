@@ -101,9 +101,9 @@ public class XmlManager implements Serializable {
      * @throws PersistenceException
      */
     public void save(Object world, File finalFile) throws PersistenceException {
-        log.debug("Gravando XML. File: " + finalFile.getPath());
-//        String msgBuild = String.format("commonsBuild=%s", SysApoio.getVersionClash("version_commons"));
         try {
+            log.debug("Gravando XML. File: " + finalFile.getPath());
+//        String msgBuild = String.format("commonsBuild=%s", SysApoio.getVersionClash("version_commons"));
             //cria temp file para o XML
             File tempFile;
             //verifica se o properties esta definindo que os arquivos temporarios devem ser apagados ou nao(debug?)
@@ -138,8 +138,9 @@ public class XmlManager implements Serializable {
             ZipManager.getInstance().doCompressGzip(tempFile, finalFile);
             log.debug("Saved file:" + finalFile.getAbsolutePath());
         } catch (IOException ex) {
-            log.error("Issues with file...", ex);
-            throw new PersistenceException(ex);
+            throw new PersistenceException("Issues with file...", ex);
+        } catch (NullPointerException ex) {
+            throw new PersistenceException("Path error to save (null on xml)...", ex);
         }
     }
 

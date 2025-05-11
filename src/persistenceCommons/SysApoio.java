@@ -23,6 +23,8 @@ import java.awt.datatransfer.StringSelection;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.ParseException;
@@ -648,8 +650,30 @@ public class SysApoio implements Serializable {
         return System.getProperty("java.version");
     }
 
+    public static String getVersionJavaRuntime() {
+        return System.getProperty("java.runtime.name");
+    }
+
+    public static String getVersionJavaVm() {
+        return System.getProperty("java.vm.version");
+    }
+
+    public static String getVersionJavaVmName() {
+        return System.getProperty("java.vm.name");
+    }
+
+    public static String getVersionJavaSpecification() {
+        return System.getProperty("java.specification.version");
+    }
+
     public static String getVersionOs() {
         return System.getProperty("os.name");
+    }
+
+    public static String getPidOs() {
+        final RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+        final String name = runtime.getName();
+        return name.substring(0, name.indexOf('@'));
     }
 
     public static String getScreenSize() {
