@@ -120,6 +120,10 @@ public class SysApoio implements Serializable {
         return (int) (Math.random() * val) + 1;
     }
 
+    public static int rand(int min, int max) {
+        return (int) (Math.random() * (max - min - 1)) + min;
+    }
+
     public static int rand(int[] val) {
         int ret = 0;
         for (int ii = 0; ii < val.length; ii++) {

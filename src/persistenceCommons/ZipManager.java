@@ -99,9 +99,7 @@ public class ZipManager implements Serializable {
                 in.close();
                 out.flush();
                 out.close();
-            } catch (NullPointerException ex) {
-                log.error(ex);
-            } catch (IOException ex) {
+            } catch (NullPointerException | IOException ex) {
                 log.error(ex);
             }
         }
