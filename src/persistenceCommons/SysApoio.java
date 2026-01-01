@@ -868,50 +868,44 @@ public class SysApoio implements Serializable {
     }
 
     public static Color getColorFromName(String nmColor) {
-        Color color = Color.BLACK;
+        Color color = getColorFromNameNoDefault(nmColor);
+        if (color == null) {
+            return Color.BLACK;
+        } else {
+            return color;
+        }
+    }
+
+    public static Color getColorFromNameNoDefault(String nmColor) {
         switch (nmColor.toLowerCase()) {
             case "black":
-                color = Color.BLACK;
-                break;
+                return Color.BLACK;
             case "blue":
-                color = Color.BLUE;
-                break;
+                return Color.BLUE;
             case "cyan":
-                color = Color.CYAN;
-                break;
+                return Color.CYAN;
             case "darkgray":
-                color = Color.DARK_GRAY;
-                break;
+                return Color.DARK_GRAY;
             case "gray":
-                color = Color.GRAY;
-                break;
+                return Color.GRAY;
             case "green":
-                color = Color.GREEN;
-                break;
-
+                return Color.GREEN;
             case "yellow":
-                color = Color.YELLOW;
-                break;
+                return Color.YELLOW;
             case "lightgray":
-                color = Color.LIGHT_GRAY;
-                break;
+                return Color.LIGHT_GRAY;
             case "magneta":
-                color = Color.MAGENTA;
-                break;
+                return Color.MAGENTA;
             case "orange":
-                color = Color.ORANGE;
-                break;
+                return Color.ORANGE;
             case "pink":
-                color = Color.PINK;
-                break;
+                return Color.PINK;
             case "red":
-                color = Color.RED;
-                break;
+                return Color.RED;
             case "white":
-                color = Color.WHITE;
-                break;
+                return Color.WHITE;
         }
-        return color;
+        return null;
     }
 
     /**
