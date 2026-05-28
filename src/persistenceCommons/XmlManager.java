@@ -60,6 +60,7 @@ public class XmlManager implements Serializable {
             is = new BufferedInputStream(new FileInputStream(workFile));
             reader = new InputStreamReader(is, "UTF-8");
             XStream xstream = new XStream();
+            xstream.allowTypesByWildcard(new String[]{"model.**"});
             return xstream.fromXML(reader);
 
 //            XStream xstream = new XStream();
@@ -185,6 +186,7 @@ public class XmlManager implements Serializable {
         try {
             if (xml != null) {
                 XStream xstream = new XStream();
+                xstream.allowTypesByWildcard(new String[]{"model.**"});
                 return xstream.fromXML(xml);
             }
         } catch (com.thoughtworks.xstream.io.StreamException e) {
