@@ -32,7 +32,6 @@ public class WebCounselorManager {
     private static final Log log = LogFactory.getLog(WebCounselorManager.class);
     private static WebCounselorManager instance;
     private static final String siteUrl = "http://clashlegends.com/PbmSite/%s.php";
-    private final String counselorToken = "4vHZA0EfimmurFsLLXO6Aj9MXAmNk7fvB23b7x43";
     public static final int OK = 202;
     public static final int ERROR_GAMECLOSED = 403;
     public static final int ERROR_TURN = 406;
@@ -60,7 +59,11 @@ public class WebCounselorManager {
             // o primeiro parametro eh o nome do "campo" onde se espera enviar o arquivo. Deve
             // ser igual ao determinado no PHP. O segundo eh o arquivo local
             entity.addPart("userfile", new FileBody(info.getAttachment()));
-            entity.addPart("pToken", new StringBody(counselorToken));
+            final String token = SettingsManager.getInstance().getConfig("counselorToken", "");
+            if (token.isEmpty()) {
+                log.warn("counselorToken not set in properties.config — upload will be rejected by server.");
+            }
+            entity.addPart("pToken", new StringBody(token));
             entity.addPart("pPartida", new StringBody(info.getGameId() + ""));
             entity.addPart("pTurno", new StringBody(info.getGameTurn() + ""));
             entity.addPart("pJogador", new StringBody(info.getPlayerId() + ""));
