@@ -146,12 +146,18 @@ public class XmlManager implements Serializable {
             });
             xstream.registerConverter(new TreeSetConverter(xstream.getMapper()) {
                 @Override
-                protected void marshalComparator(Comparator comparator, HierarchicalStreamWriter writer, MarshallingContext context) {
-                    if (comparator == null) {
+                public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+                    java.util.TreeSet<?> treeSet = (java.util.TreeSet<?>) source;
+                    if (treeSet.comparator() == null) {
                         writer.startNode("no-comparator");
                         writer.endNode();
                     } else {
-                        super.marshalComparator(comparator, writer, context);
+                        writer.startNode("comparator");
+                        context.convertAnother(treeSet.comparator());
+                        writer.endNode();
+                    }
+                    for (Object item : treeSet) {
+                        writeItem(item, context, writer);
                     }
                 }
             });
