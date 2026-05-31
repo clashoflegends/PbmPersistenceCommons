@@ -7,6 +7,7 @@ package persistenceCommons;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.collections.TreeMapConverter;
+import com.thoughtworks.xstream.converters.collections.TreeSetConverter;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import java.io.BufferedInputStream;
 import java.util.Comparator;
@@ -133,6 +134,17 @@ public class XmlManager implements Serializable {
             // XStream 1.4.21 dropped <no-comparator/> for null-comparator TreeMaps.
             // Old Counselor clients expect it; restore the old behaviour.
             xstream.registerConverter(new TreeMapConverter(xstream.getMapper()) {
+                @Override
+                protected void marshalComparator(Comparator comparator, HierarchicalStreamWriter writer, MarshallingContext context) {
+                    if (comparator == null) {
+                        writer.startNode("no-comparator");
+                        writer.endNode();
+                    } else {
+                        super.marshalComparator(comparator, writer, context);
+                    }
+                }
+            });
+            xstream.registerConverter(new TreeSetConverter(xstream.getMapper()) {
                 @Override
                 protected void marshalComparator(Comparator comparator, HierarchicalStreamWriter writer, MarshallingContext context) {
                     if (comparator == null) {
