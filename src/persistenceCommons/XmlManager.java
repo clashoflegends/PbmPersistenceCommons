@@ -131,7 +131,10 @@ public class XmlManager implements Serializable {
 
             //XStream xstream = new XStream(new DomDriver());
             XStream xstream = new XStream();
-            // XStream 1.4.21 dropped <no-comparator/> for null-comparator TreeMaps.
+            // XStream 1.4.21 changed TreeSet's canonical alias from "tree-set" to
+            // "sorted-set". Old Counselors don't know "sorted-set"; restore the alias.
+            xstream.alias("tree-set", java.util.TreeSet.class);
+            // XStream 1.4.21 dropped <no-comparator/> for null-comparator TreeMaps/TreeSets.
             // Old Counselor clients expect it; restore the old behaviour.
             xstream.registerConverter(new TreeMapConverter(xstream.getMapper()) {
                 @Override
