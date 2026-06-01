@@ -6,8 +6,10 @@ package persistenceCommons;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.converters.collections.TreeMapConverter;
 import com.thoughtworks.xstream.converters.collections.TreeSetConverter;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import java.io.BufferedInputStream;
 import java.util.Comparator;
@@ -66,6 +68,36 @@ public class XmlManager implements Serializable {
             reader = new InputStreamReader(is, "UTF-8");
             XStream xstream = new XStream();
             xstream.allowTypesByWildcard(new String[]{"model.**"});
+            // XStream's default ReflectionConverter does not call readResolve().
+            // Register a replacement at PRIORITY_LOW that does, so fields absent
+            // from old EGFs get their defaults after deserialization.
+            xstream.registerConverter(
+                new com.thoughtworks.xstream.converters.reflection.ReflectionConverter(
+                        xstream.getMapper(), xstream.getReflectionProvider()) {
+                    @Override
+                    public Object unmarshal(HierarchicalStreamReader reader,
+                            UnmarshallingContext context) {
+                        Object result = super.unmarshal(reader, context);
+                        return invokeReadResolve(result);
+                    }
+                    private Object invokeReadResolve(Object obj) {
+                        // Walk the full hierarchy so every readResolve() fires —
+                        // a subclass method must not shadow the superclass one.
+                        for (Class<?> c = obj.getClass(); c != null; c = c.getSuperclass()) {
+                            try {
+                                java.lang.reflect.Method m = c.getDeclaredMethod("readResolve");
+                                m.setAccessible(true);
+                                m.invoke(obj);
+                            } catch (NoSuchMethodException e) {
+                                // not on this class, continue up
+                            } catch (java.lang.reflect.InvocationTargetException
+                                    | IllegalAccessException e) {
+                                break;
+                            }
+                        }
+                        return obj;
+                    }
+                }, XStream.PRIORITY_LOW);
             return xstream.fromXML(reader);
 
 //            XStream xstream = new XStream();
