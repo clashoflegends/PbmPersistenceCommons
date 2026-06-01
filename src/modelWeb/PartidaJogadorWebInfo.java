@@ -20,6 +20,7 @@ public class PartidaJogadorWebInfo {
     private int playerId;
     private String playerLogin;
     private String playerEmail;
+    private int cdToken;
 
     public File getAttachment() {
         return attachment;
@@ -83,5 +84,13 @@ public class PartidaJogadorWebInfo {
 
     public void setPlayerLogin(String playerLogin) {
         this.playerLogin = playerLogin;
+    }
+
+    public int getCdToken() {
+        return cdToken;
+    }
+
+    public void setCdToken(int cdToken) {
+        this.cdToken = cdToken;
     }
 }
