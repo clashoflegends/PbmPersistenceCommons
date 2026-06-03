@@ -9,6 +9,7 @@
 package persistenceCommons;
 
 import java.awt.AWTException;
+import java.io.File;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
