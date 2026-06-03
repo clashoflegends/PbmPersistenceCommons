@@ -198,6 +198,12 @@ public class XmlManager implements Serializable {
                 }
             });
 
+            // Omit cdToken from EGF output — XStream 1.3.1 (Java 8 Counselor) throws
+            // CannotResolveClassException on unknown fields. Remove after jpackage distribution.
+            try {
+                xstream.omitField(Class.forName("model.Nacao"), "cdToken");
+            } catch (ClassNotFoundException ignored) {}
+
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Writer writer = new OutputStreamWriter(outputStream, "UTF-8"); //UTF-8  //"ISO-8859-1"
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");

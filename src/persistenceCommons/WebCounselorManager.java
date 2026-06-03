@@ -64,7 +64,11 @@ public class WebCounselorManager {
                 log.warn("counselorToken not set in properties.config — upload will be rejected by server.");
             }
             entity.addPart("pToken", new StringBody(token));
-            entity.addPart("pEgfToken", new StringBody(info.getCdToken() + ""));
+            // Only send pEgfToken when populated — omitted from EGF during old-Counselor
+            // transition period. Remove guard after jpackage distribution.
+            if (info.getCdToken() > 0) {
+                entity.addPart("pEgfToken", new StringBody(info.getCdToken() + ""));
+            }
             entity.addPart("pPartida", new StringBody(info.getGameId() + ""));
             entity.addPart("pTurno", new StringBody(info.getGameTurn() + ""));
             entity.addPart("pJogador", new StringBody(info.getPlayerId() + ""));
