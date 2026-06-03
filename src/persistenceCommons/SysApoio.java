@@ -674,6 +674,19 @@ public class SysApoio implements Serializable {
         return System.getProperty("os.name");
     }
 
+    public static String getInstallerDataDir() {
+        if (System.getProperty("jpackage.app-version") == null) return null;
+        String os = System.getProperty("os.name", "").toLowerCase();
+        String home = System.getProperty("user.home");
+        if (os.contains("win")) {
+            String appData = System.getenv("APPDATA");
+            return (appData != null ? appData : home) + File.separator + "Counselor";
+        } else if (os.contains("mac")) {
+            return home + "/Library/Application Support/Counselor";
+        }
+        return home + "/.counselor";
+    }
+
     public static String getPidOs() {
         final RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
         final String name = runtime.getName();

@@ -96,6 +96,11 @@ final class SysProperties implements Serializable {
     }
 
     private String getPropArq() {
+        String dataDir = SysApoio.getInstallerDataDir();
+        if (dataDir != null) {
+            new File(dataDir).mkdirs();
+            return dataDir + File.separator + propArqName;
+        }
         return propArqName;
     }
 
