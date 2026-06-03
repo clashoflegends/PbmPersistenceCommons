@@ -62,7 +62,6 @@ final class SysProperties implements Serializable {
             + "HexTagStyle = 0-3, changes the Hex Tag Style.\n"
             + "HexTagFrame = 0|1, changes the Hex Tag Border Style (0 or 1).\n"
             + "KeepPopupOpen = 0|1 -> Yes|No, open multiple hex's info popups.\n"
-            + "MyEmail=user@domain, define your email address.\n"
             + "OverrideElimination=0|1 -> allows you to send actions past elimination.\n"
             + "SendOrderConfirmationPopUp=0|1 - Show pop-up message with confirmation or not.\n"
             + "SendOrderReceiptRequest=0|1 - Request site to send a confirmation receipt or not.\n"
@@ -249,7 +248,6 @@ final class SysProperties implements Serializable {
         getProps().setProperty("splitSize", "660");
         getProps().setProperty("CopyActionsPopUp", "1");
         getProps().setProperty("CopyActionsOrder", "1");
-        getProps().setProperty("MyEmail", "none");
         getProps().setProperty("KeepPopupOpen", "1");
         getProps().setProperty("HexTagStyle", "0");
         getProps().setProperty("HexTagFrame", "0");
