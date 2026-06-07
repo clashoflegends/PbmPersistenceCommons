@@ -91,7 +91,7 @@ public final class SettingsManager implements Serializable {
     public BundleManager getBundleManager() {
         //para forcar o ingles, por hora.
         if (SettingsManager.getInstance().locale == null) {
-            SettingsManager.getInstance().locale = new Locale("en");
+            SettingsManager.getInstance().locale = Locale.of("en");
             Locale.setDefault(locale);
             //log.fatal("Definindo local default as EN");
         }
@@ -104,13 +104,13 @@ public final class SettingsManager implements Serializable {
 
     public void setLanguage(String lng) {
         if (lng.equalsIgnoreCase("pt")) {
-            SettingsManager.getInstance().locale = new Locale("pt");
+            SettingsManager.getInstance().locale = Locale.of("pt");
         } else if (lng.equalsIgnoreCase("it")) {
-            SettingsManager.getInstance().locale = new Locale("it");
+            SettingsManager.getInstance().locale = Locale.of("it");
         } else if (lng.equalsIgnoreCase("es")) {
-            SettingsManager.getInstance().locale = new Locale("es");
+            SettingsManager.getInstance().locale = Locale.of("es");
         } else {
-            SettingsManager.getInstance().locale = new Locale("en");
+            SettingsManager.getInstance().locale = Locale.of("en");
         }
 
         Locale.setDefault(SettingsManager.getInstance().locale);
