@@ -181,7 +181,16 @@ public class XmlManager implements Serializable {
                 }
             });
             xstream.registerConverter(new TreeSetConverter(xstream.getMapper()) {
+                // writeItem(...) is deprecated in favour of writeCompleteItem(...), but we MUST keep it:
+                // its exact serialized output IS the EGF wire format that 20 years of files and old
+                // (XStream 1.3.1 / Java 8) Counselors expect. writeCompleteItem changes reference
+                // handling for shared collection items, so substituting it would risk breaking EGF
+                // compatibility for an unbounded set of past/future files (constraint #4) - and the swap
+                // has zero functional upside. Suppression is scoped to this override only.
+                // Revisit only if a future XStream upgrade removes writeItem, or once the legacy-compat
+                // converters are retired post-cutover (then with a real save-path output verification).
                 @Override
+                @SuppressWarnings("deprecation")
                 public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
                     java.util.TreeSet<?> treeSet = (java.util.TreeSet<?>) source;
                     if (treeSet.comparator() == null) {
