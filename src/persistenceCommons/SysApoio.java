@@ -708,6 +708,20 @@ public class SysApoio implements Serializable {
         return String.format("%s x %s", width2, height2);
     }
 
+    /**
+     * OS display scale of the default screen (Windows scaling: 1.0 = 100%, 2.0 = 200%). getScreenSize
+     * reports the NATIVE resolution, so pairing it with this scale gives the logical size
+     * (logical = native / scale) - needed to tell "4K at 100% (map tiny)" from "4K at 200% (already scaled)".
+     */
+    public static String getOsScale() {
+        try {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            return String.format(java.util.Locale.US, "%.2f", gd.getDefaultConfiguration().getDefaultTransform().getScaleX());
+        } catch (Throwable t) {
+            return "1.00";
+        }
+    }
+
     public static String pointToCoord(Integer col, Integer row) {
         String newIdentificacao;
         //converte de volta para string e retorna o Hex

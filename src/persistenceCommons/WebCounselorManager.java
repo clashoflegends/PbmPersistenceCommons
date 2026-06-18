@@ -78,6 +78,9 @@ public class WebCounselorManager {
             entity.addPart("pCounselorVersion", new StringBody(SysApoio.getVersionClash("version_counselor")));
             entity.addPart("pCommonsVersion", new StringBody(SysApoio.getVersionClash("version_commons")));
             entity.addPart("pScreenSize", new StringBody(SysApoio.getScreenSize()));
+            entity.addPart("pOsScale", new StringBody(SysApoio.getOsScale()));
+            entity.addPart("pMapZoom", new StringBody(SettingsManager.getInstance().getConfig("MapZoom", "1.0")));
+            entity.addPart("pTheme", new StringBody(SettingsManager.getInstance().getConfig("LookAndFeelTheme", "FlatLight")));
             entity.addPart("pPortraitStatus", new StringBody(getbooleanStatus(SettingsManager.getInstance().isPortrait())));
             entity.addPart("pMapTiles", new StringBody(SettingsManager.getInstance().getConfig("MapTiles", "2b")));
             entity.addPart("pLanguage", new StringBody(SettingsManager.getInstance().getConfig("language", "??")));
