@@ -694,6 +694,18 @@ public class SysApoio implements Serializable {
         return name.substring(0, name.indexOf('@'));
     }
 
+    /** Cold-start time (launch -> main window shown), in ms. Set once at startup by the client,
+     *  reported as upload telemetry (player_stats.vl_startup_ms). 0 = not measured. */
+    private static volatile long startupTimeMs = 0;
+
+    public static void setStartupTimeMs(long ms) {
+        startupTimeMs = ms;
+    }
+
+    public static long getStartupTimeMs() {
+        return startupTimeMs;
+    }
+
     public static String getScreenSize() {
         //You can get the screen size with the Toolkit.getScreenSize() method.
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
