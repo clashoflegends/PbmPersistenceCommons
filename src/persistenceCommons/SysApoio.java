@@ -706,6 +706,18 @@ public class SysApoio implements Serializable {
         return startupTimeMs;
     }
 
+    /** How the currently-open game file was opened (autostart / association / menu / dragdrop / recent).
+     *  Set by the client at each open; reported as upload telemetry (player_stats.ds_load_mode). */
+    private static volatile String loadMode = "unknown";
+
+    public static void setLoadMode(String mode) {
+        loadMode = (mode == null || mode.isEmpty()) ? "unknown" : mode;
+    }
+
+    public static String getLoadMode() {
+        return loadMode;
+    }
+
     public static String getScreenSize() {
         //You can get the screen size with the Toolkit.getScreenSize() method.
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
