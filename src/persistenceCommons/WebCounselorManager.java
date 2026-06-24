@@ -83,6 +83,7 @@ public class WebCounselorManager {
             entity.addPart("pTheme", new StringBody(SettingsManager.getInstance().getConfig("LookAndFeelTheme", "FlatLight")));
             entity.addPart("pStartupMs", new StringBody(SysApoio.getStartupTimeMs() + ""));
             entity.addPart("pLoadMode", new StringBody(SysApoio.getLoadMode()));
+            entity.addPart("pDistro", new StringBody(SysApoio.getDistro()));
             entity.addPart("pPortraitStatus", new StringBody(getbooleanStatus(SettingsManager.getInstance().isPortrait())));
             entity.addPart("pMapTiles", new StringBody(SettingsManager.getInstance().getConfig("MapTiles", "2b")));
             entity.addPart("pLanguage", new StringBody(SettingsManager.getInstance().getConfig("language", "??")));

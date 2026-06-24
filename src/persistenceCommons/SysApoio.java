@@ -718,6 +718,18 @@ public class SysApoio implements Serializable {
         return loadMode;
     }
 
+    /** Which installed distribution is running (msi / windows-portable / dmg / deb / portable-jar / dev),
+     *  read from the {@code -Dclash.distro} baked into each launcher. Falls back for an unlabelled launch
+     *  (a pre-2.886 build, or a hand-rolled one): jpackage app-images set {@code jpackage.app-path}, so
+     *  those report "jpackage", everything else "dev". Reported as upload telemetry (player_stats.ds_distro). */
+    public static String getDistro() {
+        String d = System.getProperty("clash.distro", "");
+        if (!d.isEmpty()) {
+            return d;
+        }
+        return (System.getProperty("jpackage.app-path") != null) ? "jpackage" : "dev";
+    }
+
     public static String getScreenSize() {
         //You can get the screen size with the Toolkit.getScreenSize() method.
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
