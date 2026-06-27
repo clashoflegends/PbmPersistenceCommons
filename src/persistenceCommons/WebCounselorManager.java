@@ -64,6 +64,14 @@ public class WebCounselorManager {
                 log.warn("counselorToken not set in properties.config — upload will be rejected by server.");
             }
             entity.addPart("pToken", new StringBody(token));
+            // Per-player identity token (jogador.cd_token): delivered via the site token page /
+            // fetch endpoint and stored in properties.config. Sent only when set; the Site logs it
+            // (Phase A, non-blocking) and a later release enforces it (Phase B). Absent on a fresh
+            // install until the player provides it, so old behaviour is preserved when empty.
+            final String playerToken = SettingsManager.getInstance().getConfig("playerToken", "");
+            if (!playerToken.isEmpty()) {
+                entity.addPart("pPlayerToken", new StringBody(playerToken));
+            }
             // Only send pEgfToken when populated — omitted from EGF during old-Counselor
             // transition period. Remove guard after jpackage distribution.
             if (info.getCdToken() > 0) {
@@ -138,6 +146,38 @@ public class WebCounselorManager {
             throw new PersistenceException("Can't read remote file to write. Failed to send to website.");
         }
         return ERROR_UNKOWN;
+    }
+
+    /**
+     * Fetches the player's per-player token (jogador.cd_token) from the site by login + password.
+     * Returns the token on success (HTTP 200), null on bad credentials / rate limit (4xx), and
+     * throws on a network/IO error. Used by the first-upload token setup dialog. The password is
+     * sent once and never stored. See PbmSite/CounselorGetToken.php.
+     */
+    public String fetchPlayerToken(String login, String password) throws PersistenceException {
+        try {
+            HttpClient client = new DefaultHttpClient();
+            MultipartEntity entity = new MultipartEntity();
+            entity.addPart("pLogin", new StringBody(login));
+            entity.addPart("pSenha", new StringBody(password));
+            final String page = SettingsManager.getInstance().getConfig("GetTokenPage", "CounselorGetToken");
+            HttpPost post = new HttpPost(getUrl(page));
+            post.setEntity(entity);
+            HttpResponse response = client.execute(post);
+            int code = response.getStatusLine().getStatusCode();
+            setLastStatusCode(code);
+            String body = responseToString(response);
+            setLastResponseString(body);
+            if (code == 200) {
+                return body.trim();
+            }
+            log.warn("Token fetch failed (HTTP " + code + ")");
+            return null; // 401 bad creds / 429 rate limited - caller shows a friendly message
+        } catch (URISyntaxException ex) {
+            throw new PersistenceException("Can't connect to site (http://clashlegends.com/PbmSite/): " + ex.toString());
+        } catch (IOException ex) {
+            throw new PersistenceException("Failed to fetch token from website.");
+        }
     }
 
     private URI getUrl(String webpage) throws URISyntaxException {
