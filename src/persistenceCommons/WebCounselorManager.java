@@ -35,6 +35,7 @@ public class WebCounselorManager {
     public static final int OK = 202;
     public static final int ERROR_GAMECLOSED = 403;
     public static final int ERROR_TURN = 406;
+    public static final int ERROR_BADPLAYERTOKEN = 401;
     public static final int ERROR_UNKOWN = 0;
     private int lastStatusCode;
     private String lastResponseString;
@@ -59,15 +60,10 @@ public class WebCounselorManager {
             // o primeiro parametro eh o nome do "campo" onde se espera enviar o arquivo. Deve
             // ser igual ao determinado no PHP. O segundo eh o arquivo local
             entity.addPart("userfile", new FileBody(info.getAttachment()));
-            final String token = SettingsManager.getInstance().getConfig("counselorToken", "4vHZA0EfimmurFsLLXO6Aj9MXAmNk7fvB23b7x43");
-            if (token.isEmpty()) {
-                log.warn("counselorToken not set in properties.config — upload will be rejected by server.");
-            }
-            entity.addPart("pToken", new StringBody(token));
-            // Per-player identity token (jogador.cd_token): delivered via the site token page /
-            // fetch endpoint and stored in properties.config. Sent only when set; the Site logs it
-            // (Phase A, non-blocking) and a later release enforces it (Phase B). Absent on a fresh
-            // install until the player provides it, so old behaviour is preserved when empty.
+            // Per-player identity token (jogador.cd_token), delivered via the site token page / fetch
+            // endpoint and stored in properties.config. This is the sole upload credential from 2026-07
+            // on (the old shared pToken is no longer sent); the upload flow guarantees it is set before
+            // we reach here. The Site authenticates the sender against it.
             final String playerToken = SettingsManager.getInstance().getConfig("playerToken", "");
             if (!playerToken.isEmpty()) {
                 entity.addPart("pPlayerToken", new StringBody(playerToken));
@@ -133,6 +129,12 @@ public class WebCounselorManager {
                     ret.addAll(Arrays.asList(SysApoio.stringToArray(getLastResponseString())));
                     setLastResponseString(ret.get(0));
                     return ERROR_TURN;
+                case ERROR_BADPLAYERTOKEN: // 401: distinguish a recoverable bad player token from other 401s (e.g. bad EGF token)
+                    // Contract: keyed on the substring "player token" in CounselorUploadTurn.php's 401 body. Keep in sync.
+                    if (getLastResponseString() != null && getLastResponseString().toLowerCase().contains("player token")) {
+                        return ERROR_BADPLAYERTOKEN;
+                    }
+                    // other 401 -> fall through to generic error logging
                 default:
                     log.error(response.getProtocolVersion());
                     log.error(response.getStatusLine().getStatusCode());
