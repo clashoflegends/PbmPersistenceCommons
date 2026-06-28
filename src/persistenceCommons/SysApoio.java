@@ -49,7 +49,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
- * @author Gurgel
+ * @author GM Team
  */
 public class SysApoio implements Serializable {
 

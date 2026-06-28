@@ -25,7 +25,7 @@ import org.apache.http.util.EntityUtils;
 
 /**
  *
- * @author jmoura
+ * @author GM Team
  */
 public class WebCounselorManager {
 

@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
- * @author jmoura
+ * @author GM Team
  */
 public class BundleManager implements Serializable {
 

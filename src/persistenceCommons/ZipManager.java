@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Singleton para gerenciar o ZIps que deve ser único.
  *
- * @author gurgel
+ * @author GM Team
  */
 public class ZipManager implements Serializable {
 

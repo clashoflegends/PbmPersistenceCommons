@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
- * @author gurgel
+ * @author GM Team
  */
 final class SysProperties implements Serializable {
 

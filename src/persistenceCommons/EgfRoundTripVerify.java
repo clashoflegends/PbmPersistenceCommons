@@ -21,12 +21,12 @@ import java.util.List;
  * Usage:
  *   mvn -pl PbmPersistenceCommons exec:java \
  *     -Dexec.mainClass=persistenceCommons.EgfRoundTripVerify \
- *     -Dexec.args="C:/Clash/Saves"
+ *     -Dexec.args="."
  */
 public class EgfRoundTripVerify {
 
     public static void main(String[] args) throws Exception {
-        String rootPath = args.length > 0 ? args[0] : "C:/Clash/Saves";
+        String rootPath = args.length > 0 ? args[0] : ".";
         File root = new File(rootPath);
         if (!root.exists()) {
             System.err.println("Directory not found: " + rootPath);

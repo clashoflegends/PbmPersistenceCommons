@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
- * @author gurgel
+ * @author GM Team
  */
 public final class SettingsManager implements Serializable {
 

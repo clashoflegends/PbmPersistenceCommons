@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Singleton para gerenciar o xml que deve ser único.
  *
- * @author gurgel
+ * @author GM Team
  */
 public class XmlManager implements Serializable {
 
