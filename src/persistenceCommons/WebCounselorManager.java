@@ -92,6 +92,10 @@ public class WebCounselorManager {
             entity.addPart("pMapTiles", new StringBody(SettingsManager.getInstance().getConfig("MapTiles", "2b")));
             entity.addPart("pLanguage", new StringBody(SettingsManager.getInstance().getConfig("language", "??")));
             entity.addPart("pOrdersAutoSave", new StringBody(getbooleanStatus(SettingsManager.getInstance().isAutoSaveActions())));
+            // Hash of the canonical order set, so the site can later answer "are these orders the
+            // ones it holds?" (the order-sync status indicator). Client computes it; site stores it
+            // verbatim. Empty when the caller did not set one (keeps old behaviour intact).
+            entity.addPart("pOrdersHash", new StringBody(info.getOrdersHash() == null ? "" : info.getOrdersHash()));
             if (SettingsManager.getInstance().getConfig("SendOrderReceiptRequest", "1").equals("1")) {
                 entity.addPart("pTextBody", new StringBody(info.getOrders()));
                 entity.addPart("pPartidaName", new StringBody(info.getGameNm()));
@@ -179,6 +183,45 @@ public class WebCounselorManager {
             throw new PersistenceException("Can't connect to site (http://clashlegends.com/PbmSite/): " + ex.toString());
         } catch (IOException ex) {
             throw new PersistenceException("Failed to fetch token from website.");
+        }
+    }
+
+    /**
+     * Fetches the orders hash the site currently holds for this game/turn/nation, so the Counselor
+     * can tell whether the loaded order set matches what was sent. Authenticated by the per-player
+     * token (must be saved) + the per-EGF token (scopes the nation). Returns the raw response body
+     * ("<turno>|<hash>", or "NONE" when nothing is stored) on HTTP 200, null on 4xx, throws on IO.
+     * See PbmSite/CounselorGetOrdersHash.php.
+     */
+    public String fetchOrdersHash(int gameId, int gameTurn, int egfToken) throws PersistenceException {
+        final String playerToken = SettingsManager.getInstance().getConfig("playerToken", "");
+        if (playerToken.isEmpty()) {
+            return null; // no token => can't authenticate; caller renders the "no token" state
+        }
+        try {
+            HttpClient client = new DefaultHttpClient();
+            MultipartEntity entity = new MultipartEntity();
+            entity.addPart("pPlayerToken", new StringBody(playerToken));
+            entity.addPart("pPartida", new StringBody(gameId + ""));
+            entity.addPart("pTurno", new StringBody(gameTurn + ""));
+            entity.addPart("pEgfToken", new StringBody(egfToken + ""));
+            final String page = SettingsManager.getInstance().getConfig("GetOrdersHashPage", "CounselorGetOrdersHash");
+            HttpPost post = new HttpPost(getUrl(page));
+            post.setEntity(entity);
+            HttpResponse response = client.execute(post);
+            int code = response.getStatusLine().getStatusCode();
+            setLastStatusCode(code);
+            String body = responseToString(response);
+            setLastResponseString(body);
+            if (code == 200) {
+                return body.trim();
+            }
+            log.warn("Orders-hash fetch failed (HTTP " + code + ")");
+            return null;
+        } catch (URISyntaxException ex) {
+            throw new PersistenceException("Can't connect to site (http://clashlegends.com/PbmSite/): " + ex.toString());
+        } catch (IOException ex) {
+            throw new PersistenceException("Failed to fetch the orders hash from website.");
         }
     }
 

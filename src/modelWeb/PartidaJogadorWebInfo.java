@@ -21,9 +21,18 @@ public class PartidaJogadorWebInfo {
     private String playerLogin;
     private String playerEmail;
     private int cdToken;
+    private String ordersHash;
 
     public File getAttachment() {
         return attachment;
+    }
+
+    public String getOrdersHash() {
+        return ordersHash;
+    }
+
+    public void setOrdersHash(String ordersHash) {
+        this.ordersHash = ordersHash;
     }
 
     public void setAttachment(File attachment) {

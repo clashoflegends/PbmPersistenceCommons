@@ -904,6 +904,21 @@ public class SysApoio implements Serializable {
         return "MISSING";
     }
 
+    public static String sha256(String input) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] array = md.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (int ii = 0; ii < array.length; ++ii) {
+                sb.append(Integer.toHexString((array[ii] & 0xFF) | 0x100).substring(1, 3));
+            }
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            log.fatal("could not create the SHA-256 hash");
+        }
+        return "MISSING";
+    }
+
     public static void exit(int status) {
         System.exit(status);
     }
