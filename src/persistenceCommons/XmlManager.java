@@ -212,6 +212,11 @@ public class XmlManager implements Serializable {
             try {
                 xstream.omitField(Class.forName("model.Nacao"), "cdToken");
             } catch (ClassNotFoundException ignored) {}
+            // Omit Cenario.idVariante: it is a server-only load-time value (which variant this game's
+            // Cenario was built for). Never in the EGF -> old files always open, no client-first needed.
+            try {
+                xstream.omitField(Class.forName("model.Cenario"), "idVariante");
+            } catch (ClassNotFoundException ignored) {}
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Writer writer = new OutputStreamWriter(outputStream, "UTF-8"); //UTF-8  //"ISO-8859-1"
