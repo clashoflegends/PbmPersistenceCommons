@@ -109,6 +109,18 @@ public class XmlManager implements Serializable {
             throw new PersistenceException(label.getString("ARQUIVO.CORROMPIDO") + inFile.getAbsolutePath());
         } catch (PersistenceException e) {
             throw new PersistenceException(e.getMessage());
+        } catch (com.thoughtworks.xstream.converters.reflection.AbstractReflectionConverter.UnknownFieldException ex) {
+            // The EGF carries a field this client's model doesn't have -> the file was written by a NEWER
+            // Counselor (old/missing fields don't reach here: the readResolve converter above nulls them).
+            // Say so specifically instead of the generic "wrong version / maybe your file is old" hedge.
+            log.error(ex);
+            throw new PersistenceException(
+                    String.format(
+                            label.getString("ARQUIVO.VERSAO.NOVA"),
+                            inFile.getAbsolutePath(),
+                            ex.get("path")
+                    )
+            );
         } catch (com.thoughtworks.xstream.converters.ConversionException ex) {
             log.error(ex);
             throw new PersistenceException(
