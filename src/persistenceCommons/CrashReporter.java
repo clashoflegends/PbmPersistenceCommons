@@ -27,11 +27,25 @@ public class CrashReporter {
     private static final int TIMEOUT_MS = 5000;
     private static final int MAX_TRACE = 8000;
 
+    // Loaded-session context, pushed by the client on world load so crash reports attribute to the right
+    // game/player even when the context carries no filename (e.g. "uncaught", "egf-autoload").
+    private static volatile int sessionGame = 0;
+    private static volatile String sessionPlayer = "";
+
     // Strips a user home folder name from paths so we don't leak usernames: C:\Users\John, /home/john, /Users/john
     private static final Pattern USER_PATH = Pattern.compile(
             "(?i)([A-Z]:\\\\Users\\\\|/home/|/Users/)[^\\\\/\\s:;,'\"]+");
 
     private CrashReporter() {
+    }
+
+    /**
+     * Client pushes the currently-loaded game id + player login so crash reports attribute to the right
+     * game/player even when the context carries no filename ("uncaught", "egf-autoload").
+     */
+    public static void setSession(int gameId, String playerLogin) {
+        sessionGame = gameId;
+        sessionPlayer = (playerLogin == null) ? "" : playerLogin;
     }
 
     /**
@@ -46,7 +60,9 @@ public class CrashReporter {
                 return; // player opted out
             }
             final String detail = buildDetail(t, context);
-            Thread th = new Thread(() -> post(detail), "crash-reporter");
+            final int g = sessionGame;
+            final String p = sessionPlayer;
+            Thread th = new Thread(() -> post(detail, g, p), "crash-reporter");
             th.setDaemon(true);
             th.start();
         } catch (Throwable ignore) {
@@ -78,16 +94,20 @@ public class CrashReporter {
         return USER_PATH.matcher(s).replaceAll("$1<user>");
     }
 
-    private static void post(String detail) {
+    private static void post(String detail, int game, String player) {
         HttpURLConnection conn = null;
         try {
             String page = SettingsManager.getInstance().getConfig("CrashLogPage", "CounselorLogCrash");
-            String token = SettingsManager.getInstance().getConfig("counselorToken", "");
+            // Per-player identity token (the machine's configured player) - lets the Site attribute the crash
+            // even before a World loads (startup failure). Resolved to a login server-side; never stored raw.
+            String playerToken = SettingsManager.getInstance().getConfig("playerToken", "");
             URI uri = new URI(String.format(SITE_URL, page));
 
             StringBuilder body = new StringBuilder();
-            field(body, "pToken", token);
+            field(body, "pPlayerToken", playerToken);
             field(body, "pContext", detail);
+            field(body, "pGame", String.valueOf(game));
+            field(body, "pPlayer", player);
 
             byte[] payload = body.toString().getBytes(StandardCharsets.UTF_8);
             conn = (HttpURLConnection) uri.toURL().openConnection();
