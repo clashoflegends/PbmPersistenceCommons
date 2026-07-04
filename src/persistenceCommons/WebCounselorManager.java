@@ -166,6 +166,7 @@ public class WebCounselorManager {
             MultipartEntity entity = new MultipartEntity();
             entity.addPart("pLogin", new StringBody(login));
             entity.addPart("pSenha", new StringBody(password));
+            entity.addPart("pWithLogin", new StringBody("1")); // ask the site to append our login (2nd line)
             final String page = SettingsManager.getInstance().getConfig("GetTokenPage", "CounselorGetToken");
             HttpPost post = new HttpPost(getUrl(page));
             post.setEntity(entity);
@@ -175,7 +176,7 @@ public class WebCounselorManager {
             String body = responseToString(response);
             setLastResponseString(body);
             if (code == 200) {
-                return body.trim();
+                return captureLoginAndStripBody(body);
             }
             log.warn("Token fetch failed (HTTP " + code + ")");
             return null; // 401 bad creds / 429 rate limited - caller shows a friendly message
@@ -205,6 +206,7 @@ public class WebCounselorManager {
             entity.addPart("pPartida", new StringBody(gameId + ""));
             entity.addPart("pTurno", new StringBody(gameTurn + ""));
             entity.addPart("pEgfToken", new StringBody(egfToken + ""));
+            entity.addPart("pWithLogin", new StringBody("1")); // also refresh our login (appended 2nd line)
             final String page = SettingsManager.getInstance().getConfig("GetOrdersHashPage", "CounselorGetOrdersHash");
             HttpPost post = new HttpPost(getUrl(page));
             post.setEntity(entity);
@@ -214,7 +216,7 @@ public class WebCounselorManager {
             String body = responseToString(response);
             setLastResponseString(body);
             if (code == 200) {
-                return body.trim();
+                return captureLoginAndStripBody(body);
             }
             log.warn("Orders-hash fetch failed (HTTP " + code + ")");
             return null;
@@ -223,6 +225,29 @@ public class WebCounselorManager {
         } catch (IOException ex) {
             throw new PersistenceException("Failed to fetch the orders hash from website.");
         }
+    }
+
+    /**
+     * When we send pWithLogin=1, the token/orders-hash endpoints append this machine's player login on a
+     * SECOND line so the Counselor learns who it is (the SENDER, for on-behalf attribution). We store it in
+     * config and return ONLY the first line, byte-identical to the legacy body, so existing callers/parsers
+     * (TokenSetupDialog, OrdersHashService) are unaffected. Old sites echo no second line -> plain no-op.
+     */
+    private String captureLoginAndStripBody(String body) {
+        if (body == null) {
+            return null;
+        }
+        final int nl = body.indexOf('\n');
+        if (nl < 0) {
+            return body.trim();
+        }
+        final String first = body.substring(0, nl).trim();
+        final String login = body.substring(nl + 1).trim();
+        if (!login.isEmpty()
+                && !login.equals(SettingsManager.getInstance().getConfig("playerLogin", ""))) {
+            SettingsManager.getInstance().setConfigAndSaveToFile("playerLogin", login);
+        }
+        return first;
     }
 
     private URI getUrl(String webpage) throws URISyntaxException {
