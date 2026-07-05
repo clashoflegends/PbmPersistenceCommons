@@ -219,11 +219,13 @@ public class XmlManager implements Serializable {
                 }
             });
 
-            // Omit cdToken from EGF output — XStream 1.3.1 (Java 8 Counselor) throws  CannotResolveClassException on unknown fields. 
-            //TODO:Remove after jpackage distribution.
-            try {
-                xstream.omitField(Class.forName("model.Nacao"), "cdToken");
-            } catch (ClassNotFoundException ignored) {}
+            // NOTE: cdToken (the per-EGF token, Phase 7) is now EMITTED into the EGF. It was omitted here
+            // 2026-06-02 during the old-Counselor transition because XStream 1.3.1 (Java 8) clients throw
+            // CannotResolveClassException on unknown fields. The 2026-07-01 auth cutover forces every active
+            // client to upgrade before it can submit, so no 1.3.1 client remains -> the omit (which silently
+            // disabled Phase-7 per-EGF enforcement end-to-end, since no EGF carried a token) is removed. The
+            // read path (get(), above) never omitted it, so already-deployed clients read + send it with no
+            // client update needed. Regenerate EGFs (a turn cycle) for tokens to appear in the field.
             // Omit Cenario.idVariante: it is a server-only load-time value (which variant this game's
             // Cenario was built for). Never in the EGF -> old files always open, no client-first needed.
             try {
