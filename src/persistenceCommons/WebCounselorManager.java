@@ -36,12 +36,13 @@ public class WebCounselorManager {
     public static final int ERROR_GAMECLOSED = 403;
     public static final int ERROR_TURN = 406;
     public static final int ERROR_BADPLAYERTOKEN = 401;
-    // Stand-by / SHADOW gate rejection (Phase-2 #4). The Site rejects a shadow submission with a 400/403 that
-    // carries an actionable, human-readable body (e.g. "This player does not accept stand-by orders."). The
-    // client cannot pre-validate the owner's fl_accept_shadow / ds_onbehalf, so rejection is a NORMAL outcome
-    // of choosing stand-by; the caller surfaces getLastResponseString() verbatim. Only returned for shadow
-    // submissions, so the normal (non-shadow) 400/403 paths keep their existing localized messages.
-    public static final int ERROR_SHADOW = 460;
+    // On-behalf / stand-by gate rejection (Phase-2 #1 + #4). The Site rejects an on-behalf or shadow
+    // submission with a 400/401/403 that carries an actionable, human-readable body (e.g. "This player does
+    // not accept orders submitted on their behalf." / "...does not accept stand-by orders." / "A valid EGF
+    // token is required..."). The client cannot pre-validate the owner's ds_onbehalf / fl_accept_shadow, so
+    // rejection is a NORMAL outcome; the caller surfaces getLastResponseString() verbatim. Returned ONLY for
+    // on-behalf or shadow submissions, so a normal (self) submit keeps its existing localized messages.
+    public static final int ERROR_SERVERMSG = 460;
     public static final int ERROR_UNKOWN = 0;
     private int lastStatusCode;
     private String lastResponseString;
@@ -131,17 +132,25 @@ public class WebCounselorManager {
 
             setLastStatusCode(response.getStatusLine().getStatusCode());
             setLastResponseString(responseToString(response));
+            // Always log the outcome of a rejected upload at a visible level so counselor.log records WHY a
+            // submission failed (status + reason + the site's message body), for every path below.
+            if (response.getStatusLine().getStatusCode() != OK) {
+                log.warn(String.format("Upload rejected by %s: HTTP %d %s | body=%s",
+                        uploadPage, response.getStatusLine().getStatusCode(),
+                        response.getStatusLine().getReasonPhrase(), getLastResponseString()));
+            }
             //process responses
             switch (response.getStatusLine().getStatusCode()) {
                 case OK:
                     return OK;
                 case ERROR_GAMECLOSED:
                     log.debug(getLastResponseString());
-                    // For a stand-by submission a 403 is the shadow/on-behalf gate ("...does not accept
-                    // stand-by orders." / "On-behalf submission not allowed.") — surface it verbatim rather
-                    // than the generic "game closed" message. Normal submissions keep ERROR_GAMECLOSED.
-                    if (info.isShadow()) {
-                        return ERROR_SHADOW;
+                    // For an on-behalf or stand-by submission a 403 is the gate ("...does not accept orders
+                    // submitted on their behalf." / "...teammates... may submit." / "...does not accept
+                    // stand-by orders.") — surface it verbatim rather than the generic "game closed" message.
+                    // Only a plain self-submit keeps ERROR_GAMECLOSED (the genuine game-closed case).
+                    if (info.isShadow() || info.isOnBehalf()) {
+                        return ERROR_SERVERMSG;
                     }
                     return ERROR_GAMECLOSED;
                 case ERROR_TURN:
@@ -155,18 +164,18 @@ public class WebCounselorManager {
                     if (getLastResponseString() != null && getLastResponseString().toLowerCase().contains("player token")) {
                         return ERROR_BADPLAYERTOKEN;
                     }
-                    // A stand-by submission also 401s when it lacks a valid EGF token ("A valid EGF token is
-                    // required for stand-by orders.") — surface that body instead of the generic error.
-                    if (info.isShadow()) {
-                        return ERROR_SHADOW;
+                    // An on-behalf/stand-by submission also 401s on a bad/absent EGF token ("A valid EGF token
+                    // is required...") — surface that body instead of the generic error.
+                    if (info.isShadow() || info.isOnBehalf()) {
+                        return ERROR_SERVERMSG;
                     }
                     // other 401 -> fall through to generic error logging
                 default:
-                    // A stand-by submission rejected with 400 ("Stand-by orders can only be submitted on
-                    // another player's behalf." / "Invalid upload.") carries an actionable body — surface it.
-                    // Normal 400s stay generic. (403 and 401 shadow rejects are handled in their own cases.)
-                    if (info.isShadow() && response.getStatusLine().getStatusCode() == 400) {
-                        return ERROR_SHADOW;
+                    // An on-behalf/stand-by submission rejected with 400 ("Stand-by orders can only be
+                    // submitted on another player's behalf." / "Invalid upload.") carries an actionable body —
+                    // surface it. Plain self 400s stay generic. (403 and 401 rejects are handled above.)
+                    if ((info.isShadow() || info.isOnBehalf()) && response.getStatusLine().getStatusCode() == 400) {
+                        return ERROR_SERVERMSG;
                     }
                     log.error(response.getProtocolVersion());
                     log.error(response.getStatusLine().getStatusCode());

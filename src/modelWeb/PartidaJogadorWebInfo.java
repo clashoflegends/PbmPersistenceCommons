@@ -25,6 +25,9 @@ public class PartidaJogadorWebInfo {
     // Stand-by / SHADOW set (Phase-2 #4): per-submission flag, only ever true for an on-behalf submission
     // the sender explicitly marked as stand-by. Drives the pShadow POST part; the EGF itself is unchanged.
     private boolean shadow;
+    // On-behalf submission (Phase-2 #1): sender login differs from the loaded nation owner. Not sent to the
+    // Site (it resolves on-behalf from ids); used client-side so a gate rejection surfaces the Site's message.
+    private boolean onBehalf;
 
     public boolean isShadow() {
         return shadow;
@@ -32,6 +35,14 @@ public class PartidaJogadorWebInfo {
 
     public void setShadow(boolean shadow) {
         this.shadow = shadow;
+    }
+
+    public boolean isOnBehalf() {
+        return onBehalf;
+    }
+
+    public void setOnBehalf(boolean onBehalf) {
+        this.onBehalf = onBehalf;
     }
 
     public File getAttachment() {
