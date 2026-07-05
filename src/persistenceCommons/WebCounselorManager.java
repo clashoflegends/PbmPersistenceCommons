@@ -155,10 +155,16 @@ public class WebCounselorManager {
                     if (getLastResponseString() != null && getLastResponseString().toLowerCase().contains("player token")) {
                         return ERROR_BADPLAYERTOKEN;
                     }
+                    // A stand-by submission also 401s when it lacks a valid EGF token ("A valid EGF token is
+                    // required for stand-by orders.") — surface that body instead of the generic error.
+                    if (info.isShadow()) {
+                        return ERROR_SHADOW;
+                    }
                     // other 401 -> fall through to generic error logging
                 default:
-                    // A stand-by submission rejected with 400 ("Shadow only on-behalf." / bad EGF token /
-                    // "Invalid upload.") carries an actionable body — surface it. Normal 400s stay generic.
+                    // A stand-by submission rejected with 400 ("Stand-by orders can only be submitted on
+                    // another player's behalf." / "Invalid upload.") carries an actionable body — surface it.
+                    // Normal 400s stay generic. (403 and 401 shadow rejects are handled in their own cases.)
                     if (info.isShadow() && response.getStatusLine().getStatusCode() == 400) {
                         return ERROR_SHADOW;
                     }
