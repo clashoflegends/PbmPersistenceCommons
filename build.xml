@@ -10,10 +10,6 @@
 <project name="PbmPersistenceCommons" default="default" basedir=".">
     <description>Builds, tests, and runs the project PbmPersistenceCommons.</description>
     <import file="nbproject/build-impl.xml"/>
-    <target name="-post-jar">
-        <copy file="${dist.jar}" todir="/Clash/PbmCounselor/lib"/>
-        <copy file="${dist.jar}" todir="/Clash/PbmCommons/lib"/>
-    </target>
 
     <!--
 
