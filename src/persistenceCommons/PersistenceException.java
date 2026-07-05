@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
- * @author Walter
+ * @author GM Team
  */
 public class PersistenceException extends Exception implements Serializable {
 

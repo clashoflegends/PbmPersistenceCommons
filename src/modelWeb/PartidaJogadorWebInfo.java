@@ -9,7 +9,7 @@ import java.io.File;
  */
 /**
  *
- * @author GM Team 
+ * @author GM Team
  */
 public class PartidaJogadorWebInfo {
 
