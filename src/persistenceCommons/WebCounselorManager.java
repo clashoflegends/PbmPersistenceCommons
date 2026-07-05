@@ -36,6 +36,12 @@ public class WebCounselorManager {
     public static final int ERROR_GAMECLOSED = 403;
     public static final int ERROR_TURN = 406;
     public static final int ERROR_BADPLAYERTOKEN = 401;
+    // Stand-by / SHADOW gate rejection (Phase-2 #4). The Site rejects a shadow submission with a 400/403 that
+    // carries an actionable, human-readable body (e.g. "This player does not accept stand-by orders."). The
+    // client cannot pre-validate the owner's fl_accept_shadow / ds_onbehalf, so rejection is a NORMAL outcome
+    // of choosing stand-by; the caller surfaces getLastResponseString() verbatim. Only returned for shadow
+    // submissions, so the normal (non-shadow) 400/403 paths keep their existing localized messages.
+    public static final int ERROR_SHADOW = 460;
     public static final int ERROR_UNKOWN = 0;
     private int lastStatusCode;
     private String lastResponseString;
@@ -96,6 +102,11 @@ public class WebCounselorManager {
             // ones it holds?" (the order-sync status indicator). Client computes it; site stores it
             // verbatim. Empty when the caller did not set one (keeps old behaviour intact).
             entity.addPart("pOrdersHash", new StringBody(info.getOrdersHash() == null ? "" : info.getOrdersHash()));
+            // Stand-by / SHADOW set (Phase-2 #4): only sent when the sender explicitly chose stand-by for an
+            // on-behalf submission. Absent = a normal submission (byte-identical to old clients).
+            if (info.isShadow()) {
+                entity.addPart("pShadow", new StringBody("1"));
+            }
             if (SettingsManager.getInstance().getConfig("SendOrderReceiptRequest", "1").equals("1")) {
                 entity.addPart("pTextBody", new StringBody(info.getOrders()));
                 entity.addPart("pPartidaName", new StringBody(info.getGameNm()));
@@ -126,6 +137,12 @@ public class WebCounselorManager {
                     return OK;
                 case ERROR_GAMECLOSED:
                     log.debug(getLastResponseString());
+                    // For a stand-by submission a 403 is the shadow/on-behalf gate ("...does not accept
+                    // stand-by orders." / "On-behalf submission not allowed.") — surface it verbatim rather
+                    // than the generic "game closed" message. Normal submissions keep ERROR_GAMECLOSED.
+                    if (info.isShadow()) {
+                        return ERROR_SHADOW;
+                    }
                     return ERROR_GAMECLOSED;
                 case ERROR_TURN:
                     log.debug(getLastResponseString());
@@ -140,6 +157,11 @@ public class WebCounselorManager {
                     }
                     // other 401 -> fall through to generic error logging
                 default:
+                    // A stand-by submission rejected with 400 ("Shadow only on-behalf." / bad EGF token /
+                    // "Invalid upload.") carries an actionable body — surface it. Normal 400s stay generic.
+                    if (info.isShadow() && response.getStatusLine().getStatusCode() == 400) {
+                        return ERROR_SHADOW;
+                    }
                     log.error(response.getProtocolVersion());
                     log.error(response.getStatusLine().getStatusCode());
                     log.error(response.getStatusLine().getReasonPhrase());

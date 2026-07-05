@@ -22,6 +22,17 @@ public class PartidaJogadorWebInfo {
     private String playerEmail;
     private int cdToken;
     private String ordersHash;
+    // Stand-by / SHADOW set (Phase-2 #4): per-submission flag, only ever true for an on-behalf submission
+    // the sender explicitly marked as stand-by. Drives the pShadow POST part; the EGF itself is unchanged.
+    private boolean shadow;
+
+    public boolean isShadow() {
+        return shadow;
+    }
+
+    public void setShadow(boolean shadow) {
+        this.shadow = shadow;
+    }
 
     public File getAttachment() {
         return attachment;
