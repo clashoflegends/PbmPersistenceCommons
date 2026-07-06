@@ -21,6 +21,9 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -43,6 +46,21 @@ public class WebCounselorManager {
     // rejection is a NORMAL outcome; the caller surfaces getLastResponseString() verbatim. Returned ONLY for
     // on-behalf or shadow submissions, so a normal (self) submit keeps its existing localized messages.
     public static final int ERROR_SERVERMSG = 460;
+    // HTTP timeouts. A bare DefaultHttpClient has NONE (connect + read default to 0 = infinite), so a hung
+    // site would spin the busy overlay forever and a dead host would wait on the OS TCP timeout (~21s on
+    // Windows). Bound both. The UPLOAD read timeout is generous because the upload POST blocks on the Site's
+    // synchronous receipt email (KI-020: ~7-16s inside the request); the token / orders-hash fetches are quick.
+    private static final int CONNECT_TIMEOUT_MS = 10_000;
+    private static final int UPLOAD_READ_TIMEOUT_MS = 60_000;
+    private static final int FETCH_READ_TIMEOUT_MS = 15_000;
+
+    /** A DefaultHttpClient with bounded connect + socket (read) timeouts, so a down/hung site fails cleanly. */
+    private static HttpClient newHttpClient(int readTimeoutMs) {
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, CONNECT_TIMEOUT_MS);
+        HttpConnectionParams.setSoTimeout(params, readTimeoutMs);
+        return new DefaultHttpClient(params);
+    }
     public static final int ERROR_UNKOWN = 0;
     private int lastStatusCode;
     private String lastResponseString;
@@ -61,7 +79,7 @@ public class WebCounselorManager {
 //    public int doSendViaPost(File attachment, Partida partida, String textBody) throws PersistenceException {
     public int doSendViaPost(PartidaJogadorWebInfo info) throws PersistenceException {
         try {
-            HttpClient client = new DefaultHttpClient();
+            HttpClient client = newHttpClient(UPLOAD_READ_TIMEOUT_MS);
 
             MultipartEntity entity = new MultipartEntity();
             // o primeiro parametro eh o nome do "campo" onde se espera enviar o arquivo. Deve
@@ -199,7 +217,7 @@ public class WebCounselorManager {
      */
     public String fetchPlayerToken(String login, String password) throws PersistenceException {
         try {
-            HttpClient client = new DefaultHttpClient();
+            HttpClient client = newHttpClient(FETCH_READ_TIMEOUT_MS);
             MultipartEntity entity = new MultipartEntity();
             entity.addPart("pLogin", new StringBody(login));
             entity.addPart("pSenha", new StringBody(password));
@@ -237,7 +255,7 @@ public class WebCounselorManager {
             return null; // no token => can't authenticate; caller renders the "no token" state
         }
         try {
-            HttpClient client = new DefaultHttpClient();
+            HttpClient client = newHttpClient(FETCH_READ_TIMEOUT_MS);
             MultipartEntity entity = new MultipartEntity();
             entity.addPart("pPlayerToken", new StringBody(playerToken));
             entity.addPart("pPartida", new StringBody(gameId + ""));
