@@ -996,26 +996,27 @@ public class SysApoio implements Serializable {
      * is almost always released within milliseconds, so retry a few times; if it still fails, log and give
      * up rather than let the exception escape and crash the app (a failed copy must never be fatal).
      */
-    public static void setClipboardContents(String string) {
+    public static boolean setClipboardContents(String string) {
         final StringSelection stringSelection = new StringSelection(string);
         final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         final int maxAttempts = 4;
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
                 clipboard.setContents(stringSelection, null);
-                return;
+                return true;
             } catch (IllegalStateException ex) {
                 if (attempt == maxAttempts) {
                     log.warn("Could not access the system clipboard (held by another process); copy skipped: " + ex.getMessage());
-                    return;
+                    return false;
                 }
                 try {
                     Thread.sleep(60L);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
-                    return;
+                    return false;
                 }
             }
         }
+        return false;
     }
 }
