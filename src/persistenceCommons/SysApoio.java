@@ -989,10 +989,33 @@ public class SysApoio implements Serializable {
 
     /**
      * Place a String on the clipboard, and make this class the owner of the Clipboard's contents.
+     *
+     * The Windows system clipboard is a single shared OS resource: another process (a clipboard manager,
+     * RDP session, antivirus, or another app) can hold it locked at the instant we try to open it, and
+     * {@code setContents} then throws {@code IllegalStateException: cannot open system clipboard}. The lock
+     * is almost always released within milliseconds, so retry a few times; if it still fails, log and give
+     * up rather than let the exception escape and crash the app (a failed copy must never be fatal).
      */
     public static void setClipboardContents(String string) {
-        StringSelection stringSelection = new StringSelection(string);
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
+        final StringSelection stringSelection = new StringSelection(string);
+        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        final int maxAttempts = 4;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                clipboard.setContents(stringSelection, null);
+                return;
+            } catch (IllegalStateException ex) {
+                if (attempt == maxAttempts) {
+                    log.warn("Could not access the system clipboard (held by another process); copy skipped: " + ex.getMessage());
+                    return;
+                }
+                try {
+                    Thread.sleep(60L);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
     }
 }
