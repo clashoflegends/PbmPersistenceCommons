@@ -162,6 +162,12 @@ public class XmlManager implements Serializable {
                 if (getExtension(tempFileName).equalsIgnoreCase("egf")) {
                     tempFileName = getFileName(tempFileName);
                 }
+                // File.createTempFile requires the prefix to be at least 3 chars. A player who saved orders
+                // under a very short name (e.g. "c.egf") reduced tempFileName to "c" -> IllegalArgumentException
+                // ("Prefix string too short"), crash on save. Pad short/empty names so any save name works.
+                if (tempFileName == null || tempFileName.length() < 3) {
+                    tempFileName = "egf" + (tempFileName == null ? "" : tempFileName);
+                }
                 tempFile = File.createTempFile(tempFileName, null);
                 tempFile.deleteOnExit();
             } else {
