@@ -20,6 +20,7 @@ public class BundleManager implements Serializable {
 
     private static final Log log = LogFactory.getLog(BundleManager.class);
     private ResourceBundle bundleExtra;
+    private String bundleExtraName; // remembered so the extra bundle can be resolved per-locale (email localization)
 
     public BundleManager() {
     }
@@ -33,7 +34,36 @@ public class BundleManager implements Serializable {
     }
 
     public void setBundleExtra(String bundleName) {
+        this.bundleExtraName = bundleName;
         this.bundleExtra = java.util.ResourceBundle.getBundle(bundleName);
+    }
+
+    /**
+     * Resolve a key from the "extra" bundle (e.g. messagesmailsender) for a SPECIFIC locale, so player
+     * emails can be composed in each recipient's language rather than the one JVM-default bundle. Uses a
+     * no-fallback control so an absent/'en' translation resolves to the base bundle (never to the server's
+     * JVM-default locale, which the standard fallback would pick). Any miss falls back to getString(label).
+     */
+    public String getString(String label, Locale locale, boolean useExtra) {
+        if (useExtra && bundleExtraName != null && locale != null) {
+            try {
+                return ResourceBundle.getBundle(bundleExtraName, locale,
+                        ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES))
+                        .getString(label);
+            } catch (MissingResourceException e) {
+                // fall through to the default resolution below
+            }
+        }
+        return getString(label);
+    }
+
+    /** Locale-aware MessageFormat of an extra-bundle key (apostrophes auto-escaped, as in format()). */
+    public String format(String base, Object[] placeholders, Locale locale) {
+        return MessageFormat.format(getString(base, locale, true).replaceAll("'", "''"), placeholders);
+    }
+
+    public String formatNl(String base, Object[] placeholders, Locale locale) {
+        return this.format(base, placeholders, locale) + "\n";
     }
 
     public String getStringNl(String label) {
