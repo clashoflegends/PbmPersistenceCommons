@@ -835,7 +835,32 @@ public class SysApoio implements Serializable {
                     } catch (java.util.MissingResourceException e) {
                         log.fatal("Missing Label: {" + elemLabel + "}", e);
                         throw new UnsupportedOperationException(e);
-                    } catch (java.util.MissingFormatArgumentException | java.util.IllegalFormatConversionException | java.util.UnknownFormatConversionException e) {
+                    } catch (java.util.MissingFormatArgumentException e) {
+                        //defensive: a stored line carrying fewer args than the label's %s (e.g. an empty
+                        //trailing arg dropped by split) must NOT abort the whole game load/export. Log it,
+                        //pad the missing %s slots with "", and render what we can.
+                        log.fatal("linha: " + linha + " temp: " + Arrays.toString(temp)
+                                + " elemLabel: " + elemLabel + " Labels: " + labels.getString(elemLabel), e);
+                        final String fmt = labels.getString(elemLabel);
+                        int need = 0;
+                        final java.util.regex.Matcher mm = java.util.regex.Pattern.compile("%s").matcher(fmt);
+                        while (mm.find()) {
+                            need++;
+                        }
+                        Object[] padded = temp;
+                        if (temp.length < need) {
+                            padded = java.util.Arrays.copyOf(temp, need);
+                            for (int ii = temp.length; ii < need; ii++) {
+                                padded[ii] = "";
+                            }
+                        }
+                        try {
+                            linha = base[0].replaceAll(elemSubs, String.format(fmt, padded));
+                        } catch (RuntimeException ex2) {
+                            //last resort: keep the export alive with the unsubstituted template text
+                            linha = base[0].replaceAll(elemSubs, fmt);
+                        }
+                    } catch (java.util.IllegalFormatConversionException | java.util.UnknownFormatConversionException e) {
                         log.fatal("linha: " + linha);
                         log.fatal("temp: " + Arrays.toString(temp));
                         log.fatal("elemLabel: " + elemLabel);
