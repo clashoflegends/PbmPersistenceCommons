@@ -250,6 +250,11 @@ public final class SettingsManager implements Serializable {
         return propertiesConfig.doSavePropertiesToFile();
     }
 
+    /** Reset all configs to defaults: clears properties.config and recreates the default batch. */
+    public boolean resetToDefaults() {
+        return propertiesConfig.resetToDefault();
+    }
+
     public Enumeration<?> listConfigs() {
         return propertiesConfig.listKeys();
     }

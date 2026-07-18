@@ -163,6 +163,14 @@ final class SysProperties implements Serializable {
         return doSavePropertiesToFile();
     }
 
+    /** Wipe every stored property and rewrite properties.config with just the default batch. */
+    protected boolean resetToDefault() {
+        log.info("Resetting all configs to defaults");
+        getProps().clear();
+        this.setPropDefault();
+        return doSavePropertiesToFile();
+    }
+
     protected boolean doSavePropertiesToFile() {
         log.debug("Saving properties configs to file");
         try {
@@ -239,8 +247,8 @@ final class SysProperties implements Serializable {
 
     private void setPropDefault() {
         getProps().setProperty("filtro.default", "0");
-        getProps().setProperty("TableColumnAdjust", "0");
-        getProps().setProperty("maximizeWindowOnStart", "1");
+        getProps().setProperty("TableColumnAdjust", "1");
+        getProps().setProperty("maximizeWindowOnStart", "0");
         getProps().setProperty("minimizeMapOnStart", "0");
         getProps().setProperty("saveDir", "/clash/");
         getProps().setProperty("loadDir", "/clash/");
@@ -248,7 +256,8 @@ final class SysProperties implements Serializable {
         getProps().setProperty("splitSize", "660");
         getProps().setProperty("CopyActionsPopUp", "1");
         getProps().setProperty("CopyActionsOrder", "1");
-        getProps().setProperty("KeepPopupOpen", "1");
+        getProps().setProperty("SaveOrdersNoPrompt", "1");
+        getProps().setProperty("SortAllCombos", "1");
         getProps().setProperty("HexTagStyle", "0");
         getProps().setProperty("HexTagFrame", "0");
         getProps().setProperty("ShowArmyMovPath", "1");
