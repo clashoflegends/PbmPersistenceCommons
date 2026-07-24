@@ -15,13 +15,31 @@ import java.util.List;
 /**
  * EGF round-trip verification: reads every .egf file under the given directory,
  * deserializes with XStream 1.4.21 + model.** whitelist, re-serializes, and
- * compares the two XML strings. Run once after the XStream upgrade to satisfy the
- * Phase 2 verification gate.
+ * compares the two XML strings. Originally the Phase 2 XStream-upgrade gate; re-run
+ * it before merging any change that touches XStream or EGF deserialization.
  *
- * Usage:
- *   mvn -pl PbmPersistenceCommons exec:java \
- *     -Dexec.mainClass=persistenceCommons.EgfRoundTripVerify \
- *     -Dexec.args="."
+ * IMPORTANT - run it from the PbmCommons module, not from here. This class lives in
+ * PbmPersistenceCommons but deserializes model.* classes, which live in PbmCommons
+ * (the dependency is one-way: PbmCommons -> PbmPersistenceCommons, not the reverse).
+ * Run as -pl PbmPersistenceCommons it fails EVERY file with
+ * "CannotResolveClassException: model.World".
+ *
+ * JDK 21 also needs the XStream --add-opens on the exec JVM: exec:java runs in the
+ * Maven JVM, which does not inherit the surefire test opens, so without them XStream's
+ * TreeMapConverter dies at init ("module java.base does not opens java.util").
+ *
+ * Working invocation (JAVA_HOME on JDK 21; -Xmx large enough for the full corpus):
+ *   set MAVEN_OPTS=-Xmx6g ^
+ *     --add-opens java.base/java.util=ALL-UNNAMED ^
+ *     --add-opens java.base/java.lang=ALL-UNNAMED ^
+ *     --add-opens java.base/java.text=ALL-UNNAMED ^
+ *     --add-opens java.desktop/java.awt.font=ALL-UNNAMED
+ *   mvn -q -pl PbmCommons exec:java ^
+ *     -Dexec.mainClass=persistenceCommons.EgfRoundTripVerify ^
+ *     -Dexec.args="<path-to-your-saves-directory>"
+ *
+ * (-pl PbmCommons needs the multi-module aggregator; from a standalone PbmCommons
+ * checkout drop -pl and run "mvn exec:java ..." from inside the module.)
  */
 public class EgfRoundTripVerify {
 
