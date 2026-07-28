@@ -137,7 +137,7 @@ public class WebCounselorManager {
             long start = System.currentTimeMillis();
 
             HttpPost post = new HttpPost(getUrl(uploadPage));
-            post.setEntity(entity);
+            setMultipartEntity(post, entity);
 
             // faz a chamada......
             //String response = client.execute(post, new BasicResponseHandler());
@@ -224,7 +224,7 @@ public class WebCounselorManager {
             entity.addPart("pWithLogin", new StringBody("1")); // ask the site to append our login (2nd line)
             final String page = SettingsManager.getInstance().getConfig("GetTokenPage", "CounselorGetToken");
             HttpPost post = new HttpPost(getUrl(page));
-            post.setEntity(entity);
+            setMultipartEntity(post, entity);
             HttpResponse response = client.execute(post);
             int code = response.getStatusLine().getStatusCode();
             setLastStatusCode(code);
@@ -264,7 +264,7 @@ public class WebCounselorManager {
             entity.addPart("pWithLogin", new StringBody("1")); // also refresh our login (appended 2nd line)
             final String page = SettingsManager.getInstance().getConfig("GetOrdersHashPage", "CounselorGetOrdersHash");
             HttpPost post = new HttpPost(getUrl(page));
-            post.setEntity(entity);
+            setMultipartEntity(post, entity);
             HttpResponse response = client.execute(post);
             int code = response.getStatusLine().getStatusCode();
             setLastStatusCode(code);
@@ -307,6 +307,40 @@ public class WebCounselorManager {
 
     private URI getUrl(String webpage) throws URISyntaxException {
         return new URI(String.format(siteUrl, webpage));
+    }
+
+    /**
+     * Attaches a multipart body, re-stating Content-Type from the boundary alone.
+     * <p>
+     * GoDaddy started rejecting (403 Forbidden, from Apache, before PHP runs) any
+     * {@code multipart/form-data} request whose Content-Type carries a parameter other than
+     * {@code boundary} - which broke token fetch, orders-hash fetch and turn upload simultaneously
+     * on 2026-07-27. httpmime's {@link MultipartEntity} unconditionally appends
+     * {@code ; charset=US-ASCII} (in STRICT *and* BROWSER_COMPATIBLE mode), so the header it
+     * generates is always refused. Rebuilding from the boundary is deliberately broader than
+     * stripping {@code charset}: the trigger is any extra parameter, so this cannot be
+     * under-defended if httpmime ever emits another one. The body bytes are untouched, so older
+     * Site builds are unaffected.
+     */
+    private static void setMultipartEntity(HttpPost post, MultipartEntity entity) {
+        post.setEntity(entity);
+        post.setHeader("Content-Type", "multipart/form-data; boundary=" + boundaryOf(entity));
+    }
+
+    /** Extracts the {@code boundary} parameter from a generated multipart Content-Type. */
+    private static String boundaryOf(MultipartEntity entity) {
+        final String contentType = entity.getContentType().getValue();
+        for (String part : contentType.split(";")) {
+            final String p = part.trim();
+            if (p.regionMatches(true, 0, "boundary=", 0, 9)) {
+                String b = p.substring(9).trim();
+                if (b.length() > 1 && b.startsWith("\"") && b.endsWith("\"")) {
+                    b = b.substring(1, b.length() - 1);
+                }
+                return b;
+            }
+        }
+        throw new IllegalStateException("multipart Content-Type has no boundary: " + contentType);
     }
 
     private String responseToString(HttpResponse response) throws ParseException, IOException {
