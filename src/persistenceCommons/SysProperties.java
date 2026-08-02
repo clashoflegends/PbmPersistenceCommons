@@ -257,6 +257,7 @@ final class SysProperties implements Serializable {
         getProps().setProperty("CopyActionsPopUp", "1");
         getProps().setProperty("CopyActionsOrder", "1");
         getProps().setProperty("SaveOrdersNoPrompt", "1");
+        getProps().setProperty("AutoSaveOnMapPick", "0");
         getProps().setProperty("SortAllCombos", "1");
         getProps().setProperty("HexTagStyle", "0");
         getProps().setProperty("HexTagFrame", "0");

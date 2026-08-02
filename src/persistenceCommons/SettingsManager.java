@@ -56,6 +56,11 @@ public final class SettingsManager implements Serializable {
         return isConfig("AutoSaveActions", "1", "1");
     }
 
+    /** Optional: when a map hex-pick fills a single-parameter order, also save it and advance. Default OFF. */
+    public boolean isAutoSaveOnMapPick() {
+        return isConfig("AutoSaveOnMapPick", "1", "0");
+    }
+
     public boolean isDebug() {
         return SettingsManager.instance.debug;
     }
