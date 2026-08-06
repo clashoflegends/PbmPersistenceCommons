@@ -312,8 +312,13 @@ public class WebCounselorManager {
         return first;
     }
 
-    private URI getUrl(String webpage) throws URISyntaxException {
-        return new URI(String.format(SettingsManager.getInstance().getConfig(CONFIG_SITE_URL, siteUrl), webpage));
+    /** Package-private so the URL resolution can be asserted without sending anything. */
+    URI getUrl(String webpage) throws URISyntaxException {
+        // Blank counts as unset, not as an override: Properties.getProperty returns a stored empty value
+        // in preference to the default, and WorldControler's settings save can persist any key that is
+        // present in the map - so an empty SiteUrl must not turn every upload into a request to "".
+        final String base = SettingsManager.getInstance().getConfig(CONFIG_SITE_URL, "");
+        return new URI(String.format(base == null || base.isBlank() ? siteUrl : base.trim(), webpage));
     }
 
     /**

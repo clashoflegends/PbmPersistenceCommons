@@ -96,15 +96,47 @@ class WebCounselorManagerUploadTest {
         String body = lastBody.get();
         assertTrue(body.contains("name=\"userfile\""), "the orders file itself is missing");
         assertTrue(body.contains(info.getAttachment().getName()), "the orders file name is missing");
-        assertTrue(body.contains("name=\"pPlayerToken\"") && body.contains("TOKEN-FOR-TEST"),
-                "the per-player upload credential is missing");
-        assertTrue(body.contains("name=\"pEgfToken\"") && body.contains("987654"),
-                "the per-EGF token is missing");
+        // The three that carry auth/identity meaning are matched name-WITH-value, so a value landing in
+        // the wrong part cannot pass: a loose contains() for each half would.
+        assertPart(body, "pPlayerToken", "TOKEN-FOR-TEST");
+        assertPart(body, "pEgfToken", "987654");
+        assertPart(body, "pOrdersHash", "abc123hash");
         assertTrue(body.contains("name=\"pPartida\"") && body.contains("892"), "game id");
         assertTrue(body.contains("name=\"pTurno\"") && body.contains("13"), "turn");
         assertTrue(body.contains("name=\"pJogadorLogin\"") && body.contains("alexandre"), "player login");
-        assertTrue(body.contains("name=\"pOrdersHash\"") && body.contains("abc123hash"),
-                "the orders hash the sent-indicator compares against is missing");
+    }
+
+    /** Asserts a multipart part with this name carries this value (name and value in the same chunk). */
+    private static void assertPart(String body, String name, String value) {
+        assertTrue(java.util.regex.Pattern
+                .compile("name=\"" + java.util.regex.Pattern.quote(name) + "\"[\\s\\S]{0,120}?"
+                        + java.util.regex.Pattern.quote(value))
+                .matcher(body).find(),
+                "multipart part " + name + " does not carry " + value);
+    }
+
+    /**
+     * A blank override must read as "no override": an empty value can be persisted into a player's
+     * config by the settings save, and it would otherwise turn every upload into a request to "".
+     * Asserted on the resolved URL, never by sending - nothing here may reach the real site.
+     */
+    @Test
+    void aBlankSiteUrlOverrideFallsBackToProduction() throws Exception {
+        String stub = SettingsManager.getInstance().getConfig("SiteUrl", "");
+        try {
+            SettingsManager.getInstance().setConfig("SiteUrl", "   ");
+            assertEquals("http://clashlegends.com/PbmSite/CounselorUploadTurn.php",
+                    WebCounselorManager.getInstance().getUrl("CounselorUploadTurn").toString(),
+                    "a blank override was used as a URL instead of falling back to production");
+        } finally {
+            SettingsManager.getInstance().setConfig("SiteUrl", stub);
+        }
+    }
+
+    @Test
+    void aSetSiteUrlOverrideIsUsed() throws Exception {
+        assertEquals("http://127.0.0.1:" + server.getAddress().getPort() + "/CounselorUploadTurn.php",
+                WebCounselorManager.getInstance().getUrl("CounselorUploadTurn").toString());
     }
 
     /** Regression guard for the 2026-07-27 outage: any extra Content-Type parameter is refused by the host. */
