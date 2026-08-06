@@ -35,6 +35,13 @@ public class WebCounselorManager {
     private static final Log log = LogFactory.getLog(WebCounselorManager.class);
     private static WebCounselorManager instance;
     private static final String siteUrl = "http://clashlegends.com/PbmSite/%s.php";
+    /**
+     * Config key overriding the site base URL, as a {@code %s} template taking the endpoint name.
+     * Unset (the normal case) means production, so behaviour is unchanged for every player. It exists
+     * so the upload contract can be exercised against a local stub, and so a spare box can be pointed
+     * at a staging site without a rebuild.
+     */
+    private static final String CONFIG_SITE_URL = "SiteUrl";
     public static final int OK = 202;
     public static final int ERROR_GAMECLOSED = 403;
     public static final int ERROR_TURN = 406;
@@ -306,7 +313,7 @@ public class WebCounselorManager {
     }
 
     private URI getUrl(String webpage) throws URISyntaxException {
-        return new URI(String.format(siteUrl, webpage));
+        return new URI(String.format(SettingsManager.getInstance().getConfig(CONFIG_SITE_URL, siteUrl), webpage));
     }
 
     /**

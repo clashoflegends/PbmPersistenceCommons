@@ -640,13 +640,19 @@ public class SysApoio implements Serializable {
      *
      * @return
      */
+    /**
+     * Build number from a {@code version_<component>.properties} bundle, or "" when it cannot be read.
+     * <p>
+     * The bundle lookup is inside the guard on purpose: this is called while composing an order upload
+     * and in log lines, so a version file missing from a packaged jar must degrade to an unknown
+     * version rather than throw {@link MissingResourceException} out of a submission.
+     */
     public static String getVersionClash(String fileName) {
-        ResourceBundle rb = ResourceBundle.getBundle(fileName);
         String msg = "", propToken = "BUILD";
         try {
-            msg = rb.getString(propToken);
+            msg = ResourceBundle.getBundle(fileName).getString(propToken);
         } catch (MissingResourceException e) {
-            log.error("Token ".concat(propToken).concat(" not in Propertyfile!"));
+            log.error("Token ".concat(propToken).concat(" not in Propertyfile ").concat(fileName).concat("!"));
         }
         return msg;
     }
