@@ -736,18 +736,27 @@ public class SysApoio implements Serializable {
         return (System.getProperty("jpackage.app-path") != null) ? "jpackage" : "dev";
     }
 
+    /**
+     * Native resolution of the default screen, or "" when there is no display. Reported as telemetry
+     * inside an order upload, so it must never be the reason a submission fails: without the guard
+     * this throws {@link java.awt.HeadlessException} out of the upload on a machine with no display.
+     */
     public static String getScreenSize() {
-        //You can get the screen size with the Toolkit.getScreenSize() method.
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        double width = screenSize.getWidth();
-        double height = screenSize.getHeight();
-        //On a multi-monitor configuration you should use this :
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        int width2 = gd.getDisplayMode().getWidth();
-        int height2 = gd.getDisplayMode().getHeight();
+        try {
+            //You can get the screen size with the Toolkit.getScreenSize() method.
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            double width = screenSize.getWidth();
+            double height = screenSize.getHeight();
+            //On a multi-monitor configuration you should use this :
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            int width2 = gd.getDisplayMode().getWidth();
+            int height2 = gd.getDisplayMode().getHeight();
 
-        //If you want to get the screen resolution in DPI you'll have to use the getScreenResolution() method on Toolkit.
-        return String.format("%s x %s", width2, height2);
+            //If you want to get the screen resolution in DPI you'll have to use the getScreenResolution() method on Toolkit.
+            return String.format("%s x %s", width2, height2);
+        } catch (Throwable t) {
+            return "";
+        }
     }
 
     /**

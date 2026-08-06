@@ -65,6 +65,11 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
+                    <systemPropertyVariables>
+                        <!-- Match CI: a dev box with a display would otherwise not catch an upload path
+                             that only fails where there is none. -->
+                        <java.awt.headless>true</java.awt.headless>
+                    </systemPropertyVariables>
                     <argLine>
                         --add-opens java.base/java.util=ALL-UNNAMED
                         --add-opens java.base/java.lang=ALL-UNNAMED
