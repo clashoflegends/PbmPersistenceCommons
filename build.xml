@@ -10,6 +10,27 @@
 <project name="PbmPersistenceCommons" default="default" basedir=".">
     <description>Builds, tests, and runs the project PbmPersistenceCommons.</description>
     <import file="nbproject/build-impl.xml"/>
+    <!-- Override the NB-generated -do-test-run: it uses the Ant <junit> task, which looks for
+         org.junit.Test (JUnit 4) and SILENTLY SKIPS Jupiter tests. Mirrors PbmCommons.
+         Headless matches the Maven surefire config, so a display-dependent regression fails in
+         NetBeans too, not only on the CI runner. -->
+    <target name="-do-test-run" depends="init,compile-test,-pre-test-run">
+        <junitlauncher haltOnFailure="false" printSummary="true">
+            <classpath path="${run.test.classpath}"/>
+            <testclasses outputdir="${build.test.results.dir}">
+                <fileset dir="${build.test.classes.dir}" includes="**/*Test.class"/>
+                <fork dir="${basedir}">
+                    <sysproperty key="java.awt.headless" value="true"/>
+                    <jvmarg value="--add-opens=java.base/java.util=ALL-UNNAMED"/>
+                    <jvmarg value="--add-opens=java.base/java.lang=ALL-UNNAMED"/>
+                    <jvmarg value="--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"/>
+                    <jvmarg value="--add-opens=java.base/java.text=ALL-UNNAMED"/>
+                    <jvmarg value="--add-opens=java.base/java.util.concurrent=ALL-UNNAMED"/>
+                </fork>
+                <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
+            </testclasses>
+        </junitlauncher>
+    </target>
 
     <!--
 
