@@ -238,7 +238,7 @@ public class WebCounselorManager {
             String body = responseToString(response);
             setLastResponseString(body);
             if (code == 200) {
-                return captureLoginAndStripBody(body);
+                return captureLoginAndStripBody(body, true);
             }
             log.warn("Token fetch failed (HTTP " + code + ")");
             return null; // 401 bad creds / 429 rate limited - caller shows a friendly message
@@ -278,7 +278,7 @@ public class WebCounselorManager {
             String body = responseToString(response);
             setLastResponseString(body);
             if (code == 200) {
-                return captureLoginAndStripBody(body);
+                return captureLoginAndStripBody(body, false);
             }
             log.warn("Orders-hash fetch failed (HTTP " + code + ")");
             return null;
@@ -295,21 +295,63 @@ public class WebCounselorManager {
      * config and return ONLY the first line, byte-identical to the legacy body, so existing callers/parsers
      * (TokenSetupDialog, OrdersHashService) are unaffected. Old sites echo no second line -> plain no-op.
      */
-    private String captureLoginAndStripBody(String body) {
-        if (body == null) {
-            return null;
+    private String captureLoginAndStripBody(String body, boolean tokenResponse) throws PersistenceException {
+        final LoginResponse parsed;
+        try {
+            parsed = parseLoginResponse(body, tokenResponse);
+        } catch (PersistenceException ex) {
+            // A host verification/error page is not account data. Never expose it as a server result.
+            setLastResponseString("Unexpected website response.");
+            throw ex;
         }
-        final int nl = body.indexOf('\n');
-        if (nl < 0) {
-            return body.trim();
-        }
-        final String first = body.substring(0, nl).trim();
-        final String login = body.substring(nl + 1).trim();
+        final String login = parsed.login();
         if (!login.isEmpty()
                 && !login.equals(SettingsManager.getInstance().getConfig("playerLogin", ""))) {
             SettingsManager.getInstance().setConfigAndSaveToFile("playerLogin", login);
         }
-        return first;
+        return parsed.value();
+    }
+
+    record LoginResponse(String value, String login) { }
+
+    /** Validate the whole reply before either identity or payload can reach a caller. */
+    static LoginResponse parseLoginResponse(String body, boolean tokenResponse) throws PersistenceException {
+        if (body != null) {
+            final String normalized = body.replace("\r\n", "\n");
+            // Check before trim(), which would otherwise conceal trailing control characters.
+            final boolean unsafe = normalized.chars().anyMatch(c ->
+                    (Character.isISOControl(c) && c != '\n') || c == 0x2028 || c == 0x2029);
+            final String[] lines = normalized.trim().split("\n", -1);
+            final String first = lines[0].trim();
+            final String login = lines.length == 2 ? lines[1].trim() : "";
+            boolean validValue = tokenResponse ? first.matches("[0-9a-fA-F]{40}")
+                    : "NONE".equals(first) || first.matches("[0-9]+\\|[0-9a-fA-F]{64}");
+            if (!tokenResponse && validValue && !"NONE".equals(first)) {
+                try {
+                    Integer.parseInt(first.substring(0, first.indexOf('|')));
+                } catch (NumberFormatException ex) {
+                    validValue = false;
+                }
+            }
+            if (!unsafe && lines.length <= 2 && validValue && isSafePlayerLogin(login)) {
+                return new LoginResponse(first, login);
+            }
+        }
+        throw new PersistenceException("The website returned an unexpected response. Please try again later.");
+    }
+
+    private static boolean isSafePlayerLogin(String login) {
+        return login.chars().noneMatch(c -> c == '<' || c == '>' || Character.isISOControl(c)
+                || c == 0x2028 || c == 0x2029);
+    }
+
+    /** Client-startup recovery for verification HTML saved by older versions; keep the token intact. */
+    public void clearInvalidPlayerLogin() {
+        final SettingsManager settings = SettingsManager.getInstance();
+        if (!isSafePlayerLogin(settings.getConfig("playerLogin", ""))) {
+            settings.setConfigAndSaveToFile("playerLogin", "");
+            log.warn("Cleared an invalid saved website login; a successful website response will restore it.");
+        }
     }
 
     /** Package-private so the URL resolution can be asserted without sending anything. */
