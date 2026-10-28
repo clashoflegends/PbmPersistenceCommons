@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import modelWeb.PartidaJogadorWebInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +54,11 @@ public class WebCounselorManager {
     // rejection is a NORMAL outcome; the caller surfaces getLastResponseString() verbatim. Returned ONLY for
     // on-behalf or shadow submissions, so a normal (self) submit keeps its existing localized messages.
     public static final int ERROR_SERVERMSG = 460;
+    /** Hosting verification needs a browser, not new credentials or an automatic retry. */
+    public static final int ERROR_BROWSER_VERIFICATION = 461;
+    public static final int ERROR_HTML_RESPONSE = 462;
+    /** Per-request result: asynchronous callers must not read another request's diagnostics. */
+    public record UploadResult(int code, String message, boolean htmlResponse) { }
     // HTTP timeouts. A bare DefaultHttpClient has NONE (connect + read default to 0 = infinite), so a hung
     // site would spin the busy overlay forever and a dead host would wait on the OS TCP timeout (~21s on
     // Windows). Bound both. The UPLOAD read timeout is generous because the upload POST blocks on the Site's
@@ -85,6 +91,10 @@ public class WebCounselorManager {
 
 //    public int doSendViaPost(File attachment, Partida partida, String textBody) throws PersistenceException {
     public int doSendViaPost(PartidaJogadorWebInfo info) throws PersistenceException {
+        return doSendViaPostResult(info).code();
+    }
+
+    public UploadResult doSendViaPostResult(PartidaJogadorWebInfo info) throws PersistenceException {
         try {
             HttpClient client = newHttpClient(UPLOAD_READ_TIMEOUT_MS);
 
@@ -156,43 +166,64 @@ public class WebCounselorManager {
             }
 
             setLastStatusCode(response.getStatusLine().getStatusCode());
-            setLastResponseString(responseToString(response));
+            final String responseBody = responseToString(response);
+            final int code = response.getStatusLine().getStatusCode();
+            final String htmlMessage = WebsiteHtmlMessage.extract(responseBody, playerToken,
+                    info.getCdToken() > 0 ? Integer.toString(info.getCdToken()) : "");
+            final boolean html = htmlMessage != null;
+            final String message = html ? htmlMessage : responseBody;
+            // Classify this request's body before shared diagnostics or HTTP status handling. A
+            // challenge can arrive with 200, 401, 403, or even 202; none confirms an order upload.
+            if (isBrowserVerification(responseBody)) {
+                setLastResponseString(htmlMessage == null ? "" : htmlMessage);
+                log.warn("Upload blocked by browser verification: HTTP " + code + " | message="
+                        + (htmlMessage == null ? "" : htmlMessage));
+                return new UploadResult(ERROR_BROWSER_VERIFICATION, htmlMessage == null ? "" : htmlMessage, true);
+            }
+            setLastResponseString(message);
+            if (html) {
+                log.info("Upload returned HTML: HTTP " + code + " | message=" + htmlMessage);
+                // The site's normal successful response is HTTP202 with a <pre> confirmation.
+                if (code != OK) {
+                    return new UploadResult(ERROR_HTML_RESPONSE, htmlMessage, true);
+                }
+            }
             // Always log the outcome of a rejected upload at a visible level so counselor.log records WHY a
             // submission failed (status + reason + the site's message body), for every path below.
             if (response.getStatusLine().getStatusCode() != OK) {
                 log.warn(String.format("Upload rejected by %s: HTTP %d %s | body=%s",
                         uploadPage, response.getStatusLine().getStatusCode(),
-                        response.getStatusLine().getReasonPhrase(), getLastResponseString()));
+                        response.getStatusLine().getReasonPhrase(), message));
             }
             //process responses
             switch (response.getStatusLine().getStatusCode()) {
                 case OK:
-                    return OK;
+                    return new UploadResult(OK, message, html);
                 case ERROR_GAMECLOSED:
-                    log.debug(getLastResponseString());
+                    log.debug(message);
                     // For an on-behalf or stand-by submission a 403 is the gate ("...does not accept orders
                     // submitted on their behalf." / "...teammates... may submit." / "...does not accept
                     // stand-by orders.") — surface it verbatim rather than the generic "game closed" message.
                     // Only a plain self-submit keeps ERROR_GAMECLOSED (the genuine game-closed case).
                     if (info.isShadow() || info.isOnBehalf()) {
-                        return ERROR_SERVERMSG;
+                        return new UploadResult(ERROR_SERVERMSG, message, false);
                     }
-                    return ERROR_GAMECLOSED;
+                    return new UploadResult(ERROR_GAMECLOSED, message, false);
                 case ERROR_TURN:
-                    log.debug(getLastResponseString());
+                    log.debug(message);
                     List<String> ret = new ArrayList<>();
-                    ret.addAll(Arrays.asList(SysApoio.stringToArray(getLastResponseString())));
+                    ret.addAll(Arrays.asList(SysApoio.stringToArray(message)));
                     setLastResponseString(ret.get(0));
-                    return ERROR_TURN;
+                    return new UploadResult(ERROR_TURN, ret.get(0), false);
                 case ERROR_BADPLAYERTOKEN: // 401: distinguish a recoverable bad player token from other 401s (e.g. bad EGF token)
                     // Contract: keyed on the substring "player token" in CounselorUploadTurn.php's 401 body. Keep in sync.
-                    if (getLastResponseString() != null && getLastResponseString().toLowerCase().contains("player token")) {
-                        return ERROR_BADPLAYERTOKEN;
+                    if (message != null && message.toLowerCase(Locale.ROOT).contains("player token")) {
+                        return new UploadResult(ERROR_BADPLAYERTOKEN, message, false);
                     }
                     // An on-behalf/stand-by submission also 401s on a bad/absent EGF token ("A valid EGF token
                     // is required...") — surface that body instead of the generic error.
                     if (info.isShadow() || info.isOnBehalf()) {
-                        return ERROR_SERVERMSG;
+                        return new UploadResult(ERROR_SERVERMSG, message, false);
                     }
                     // other 401 -> fall through to generic error logging
                 default:
@@ -200,12 +231,12 @@ public class WebCounselorManager {
                     // submitted on another player's behalf." / "Invalid upload.") carries an actionable body —
                     // surface it. Plain self 400s stay generic. (403 and 401 rejects are handled above.)
                     if ((info.isShadow() || info.isOnBehalf()) && response.getStatusLine().getStatusCode() == 400) {
-                        return ERROR_SERVERMSG;
+                        return new UploadResult(ERROR_SERVERMSG, message, false);
                     }
                     log.error(response.getProtocolVersion());
                     log.error(response.getStatusLine().getStatusCode());
                     log.error(response.getStatusLine().getReasonPhrase());
-                    log.error(getLastResponseString());
+                    log.error(message);
                     break;
             }
         } catch (URISyntaxException ex) {
@@ -213,7 +244,7 @@ public class WebCounselorManager {
         } catch (IOException ex) {
             throw new PersistenceException("Can't read remote file to write. Failed to send to website.");
         }
-        return ERROR_UNKOWN;
+        return new UploadResult(ERROR_UNKOWN, "", false);
     }
 
     /**
@@ -236,6 +267,8 @@ public class WebCounselorManager {
             int code = response.getStatusLine().getStatusCode();
             setLastStatusCode(code);
             String body = responseToString(response);
+            rejectHtml(body, code, "Token fetch", password,
+                    SettingsManager.getInstance().getConfig("playerToken", ""));
             setLastResponseString(body);
             if (code == 200) {
                 return captureLoginAndStripBody(body, true);
@@ -276,6 +309,8 @@ public class WebCounselorManager {
             int code = response.getStatusLine().getStatusCode();
             setLastStatusCode(code);
             String body = responseToString(response);
+            rejectHtml(body, code, "Orders-hash fetch", playerToken,
+                    egfToken > 0 ? Integer.toString(egfToken) : "");
             setLastResponseString(body);
             if (code == 200) {
                 return captureLoginAndStripBody(body, false);
@@ -352,6 +387,27 @@ public class WebCounselorManager {
             settings.setConfigAndSaveToFile("playerLogin", "");
             log.warn("Cleared an invalid saved website login; a successful website response will restore it.");
         }
+    }
+
+    private void rejectHtml(String body, int code, String operation, String... secrets) throws WebsiteHtmlException {
+        String message = WebsiteHtmlMessage.extract(body, secrets);
+        if (message != null) {
+            setLastResponseString(message);
+            log.warn(operation + " returned HTML: HTTP " + code + " | message=" + message);
+            throw new WebsiteHtmlException(code, message);
+        }
+    }
+
+    /** Recognize the observed host challenge without treating every HTML error as verification. */
+    static boolean isBrowserVerification(String body) {
+        if (body == null) {
+            return false;
+        }
+        String lower = body.toLowerCase(Locale.ROOT);
+        return (lower.contains("<html") || lower.contains("<!doctype html"))
+                && lower.contains("wsidchk")
+                && (lower.contains("one moment, please")
+                    || lower.contains("please wait while your request is being verified"));
     }
 
     /** Package-private so the URL resolution can be asserted without sending anything. */

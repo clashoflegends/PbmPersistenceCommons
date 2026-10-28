@@ -113,7 +113,7 @@ class WebCounselorManagerLoginTest {
                 assertThrows(PersistenceException.class, () -> web.fetchOrdersHash(1, 7, 123));
                 assertArrayEquals(before, Files.readAllBytes(config));
                 assertEquals("previous.player", settings.getConfig("playerLogin", ""));
-                assertEquals("Unexpected website response.", web.getLastResponseString());
+                assertEquals("Please wait while your request is being verified...", web.getLastResponseString());
 
                 body.set(TOKEN + "\ncanonical.player");
                 assertEquals(TOKEN, web.fetchPlayerToken("sample.player", "dummy-password"));
